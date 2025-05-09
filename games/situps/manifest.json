@@ -1,0 +1,6 @@
+{
+  "name": "situps",
+  "difficulty": "medium",
+  "assets": ["situp.png"],
+  "libraries": []
+}
