@@ -1,58 +1,86 @@
 export default class MircoGame {
-  constructor({ canvas, libs, input, assets, win, lose }) {
-    this.ctx = canvas.getContext("2d");
-    this.canvas = canvas;
-    this.assets = assets;
+  constructor({ input, assets, libs }) {
     this.input = input;
-    this.win = win;
-    this.lose = lose;
+    this.assets = assets;
+  }
 
-    this.player = { x: 100, y: 220, width: 40, height: 40 };
-    this.block = {
-      x: Math.random() * 200,
-      y: -40,
-      width: 40,
-      height: 40,
-      speed: 0.2,
+  init(canvas) {
+    return {
+      player: {
+        x: 100,
+        y: 220,
+        width: 40,
+        height: 40,
+      },
+      block: {
+        x: Math.random() * (canvas.width - 40),
+        y: -40,
+        width: 40,
+        height: 40,
+        speed: 0.2,
+      },
+      startTime: performance.now(),
+      gameOver: false,
+      message: "",
     };
   }
 
-  init() {}
+  update(s, dt) {
+    if (s.gameOver) return;
 
-  start() {
-    this.startTime = performance.now();
-  }
-
-  update(dt) {
     // Move player
-    console.log(this.input);
-    if (this.input.pressed("ArrowLeft")) this.player.x -= 0.2 * dt;
+    if (this.input.pressed("ArrowLeft")) s.player.x -= 0.2 * dt;
+    if (this.input.pressed("ArrowRight")) s.player.x += 0.2 * dt;
 
-    if (this.input.pressed("ArrowRight")) this.player.x += 0.2 * dt;
-
-    // Clamp player position
-    this.player.x = Math.max(
-      0,
-      Math.min(this.canvas.width - this.player.width, this.player.x)
-    );
+    // Clamp player position using p5 width
+    s.player.x = Math.max(0, Math.min(800 - s.player.width, s.player.x));
 
     // Move block
-    this.block.y += this.block.speed * dt;
+    s.block.y += s.block.speed * dt;
 
     // Collision detection
-    if (this.collides(this.player, this.block)) {
-      console.log("lose!");
-      this.lose();
+    if (this.collides(s.player, s.block)) {
+      s.gameOver = true;
+      s.message = "Game Over!";
+      s.win = false;
     }
 
-    // Game timer check
-    if (performance.now() - this.startTime > 5000) {
-      console.log("win!");
-      this.win();
+    // Win condition
+    if (performance.now() - s.startTime > 5000) {
+      s.gameOver = true;
+      s.message = "Winner!";
+      s.win = true;
     }
+  }
 
-    // Render
-    this.draw();
+  draw(s, p5) {
+    p5.background(255);
+
+    // Draw player
+    p5.image(
+      this.assets["player.png"],
+      s.player.x,
+      s.player.y,
+      s.player.width,
+      s.player.height
+    );
+
+    // Draw block
+    p5.image(
+      this.assets["block.png"],
+      s.block.x,
+      s.block.y,
+      s.block.width,
+      s.block.height
+    );
+
+    // Draw game over message
+    if (s.gameOver) {
+      p5.textSize(48);
+      p5.textAlign(p5.CENTER);
+      p5.fill(s.message.includes("Winner") ? [0, 255, 0] : [255, 0, 0]);
+      p5.text(s.message, p5.width / 2, p5.height / 2);
+    }
   }
 
   collides(a, b) {
@@ -64,27 +92,7 @@ export default class MircoGame {
     );
   }
 
-  draw() {
-    const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    ctx.drawImage(
-      this.assets["player.png"],
-      this.player.x,
-      this.player.y,
-      this.player.width,
-      this.player.height
-    );
-    ctx.drawImage(
-      this.assets["block.png"],
-      this.block.x,
-      this.block.y,
-      this.block.width,
-      this.block.height
-    );
-  }
-
-  end() {
-    // Clean up if needed
+  end(s) {
+    return !!s.win;
   }
 }
