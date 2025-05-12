@@ -20,8 +20,8 @@ export default class MircoGame {
       block: {
         x: Math.random() * (canvas.width - 40),
         y: -40,
-        width: 40,
-        height: 40,
+        width: 100,
+        height: 70,
         speed: 0.2,
       },
       startTime: performance.now(),
@@ -53,7 +53,6 @@ export default class MircoGame {
       s.message = "Game Over!";
       s.win = false;
     }
-
     // Win condition
     if (performance.now() - s.startTime > 5000) {
       s.gameOver = true;

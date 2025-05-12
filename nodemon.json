@@ -1,4 +1,5 @@
 {
-  "watch": ["server.js", "client/**/*"],
-  "ext": "js,json,css,html"
+  "watch": ["server.js"],
+  "ignore": ["node_modules/", "dist/"],
+  "delay": "500"
 }
