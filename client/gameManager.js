@@ -10,7 +10,6 @@ export class GameManager {
           p.noLoop(); // Game manager will control looping
         };
       }, container),
-      physics: window.planck,
     };
 
     this.games = [];
@@ -24,9 +23,13 @@ export class GameManager {
       keys: new Set(),
       pressed: (key) => {
         const isPressed = this.input.keys.has(key);
-        // console.log(`Checking key ${key}: ${isPressed}`);
         return isPressed;
       },
+    };
+
+    this.state = {
+      wins: 0,
+      losses: 0,
     };
 
     // Bind input handlers
@@ -92,7 +95,7 @@ export class GameManager {
       libs: this.libs,
     });
 
-    this.currentGameState = this.currentGame.init(this.canvas);
+    this.currentGame.init(this.canvas);
     this.startGameLoop();
 
     // Automatically end game after time
@@ -124,8 +127,7 @@ export class GameManager {
     /** Inject args */
     // Update current game
 
-    this.currentGame.update?.(this.currentGameState, deltaTime);
-    this.currentGame.draw?.(this.currentGameState, this.libs.p5);
+    this.currentGame.update?.(deltaTime);
 
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time));
@@ -139,13 +141,12 @@ export class GameManager {
       this.frameId = null;
     }
     // Call end on current game if it exists
-    if (this.currentGame && this.currentGameState) {
-      this.currentGame.end?.(this.currentGameState);
+    if (this.currentGame) {
+      this.currentGame.end?.();
     }
 
     // Clean up game state
     this.currentGame = null;
-    this.currentGameState = null;
 
     // Schedule next game
     setTimeout(() => this.playNext(), 1000);

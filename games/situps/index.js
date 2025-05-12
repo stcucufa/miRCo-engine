@@ -2,12 +2,19 @@ export default class MircoGame {
   constructor({ input, assets, libs }) {
     this.input = input;
     this.assets = assets;
+    this.libs = libs;
+
+    this.state = {
+      // defaults
+      gameOver: false,
+      won: false, // defaulting to false = lose by default, true = win by default
+    };
   }
 
   /** Create model */
   init(canvas) {
     // Initialize any game state
-    return {
+    const customState = {
       athlete: {
         x: canvas.width / 2 - 40,
         y: canvas.height - 100,
@@ -19,14 +26,16 @@ export default class MircoGame {
       requiredSitUps: 5,
       lastKeyState: false,
       startTime: performance.now(),
-      gameOver: false,
-      won: false, // set win to true or false by default
       message: "",
     };
+
+    this.state = { ...this.state, ...customState };
   }
 
   /** logic to update game state */
-  update(state, dt) {
+  update(dt) {
+    const state = this.state;
+
     if (state.gameOver) return; // stop gameplay once win/lose
 
     // change state based on inputs
@@ -51,10 +60,16 @@ export default class MircoGame {
     }
 
     state.lastKeyState = spacePressed;
+
+    // IMPORTANT: call this method at the end of update()
+    this.draw();
   }
 
   /** render visuals based on game state */
-  draw(state, p5) {
+  draw() {
+    const state = this.state;
+    const p5 = this.libs.p5;
+
     p5.background(255);
     p5.push();
     p5.translate(
@@ -85,12 +100,13 @@ export default class MircoGame {
     if (state.gameOver) {
       p5.textSize(48);
       p5.textAlign(p5.CENTER);
-      p5.fill(0, 255, 0); // Green text for winner
+      p5.fill(0, 255, 0); // green
       p5.text(state.message, p5.width / 2, p5.height / 2);
     }
   }
 
-  end(s) {
-    return s.won;
+  /** return true if game is won, false if lost */
+  end() {
+    return this.state.won;
   }
 }

@@ -2,10 +2,15 @@ export default class MircoGame {
   constructor({ input, assets, libs }) {
     this.input = input;
     this.assets = assets;
+    this.libs = libs;
+    this.state = {
+      gameOver: false,
+      won: true,
+    };
   }
 
   init(canvas) {
-    return {
+    const customState = {
       player: {
         x: 100,
         y: 220,
@@ -20,12 +25,16 @@ export default class MircoGame {
         speed: 0.2,
       },
       startTime: performance.now(),
-      gameOver: false,
+
       message: "",
     };
+
+    this.state = { ...this.state, ...customState };
+    return;
   }
 
-  update(s, dt) {
+  update(dt) {
+    const s = this.state;
     if (s.gameOver) return;
 
     // Move player
@@ -51,9 +60,15 @@ export default class MircoGame {
       s.message = "Winner!";
       s.win = true;
     }
+
+    // IMPORTANT: call this method at the end of update()
+    this.draw();
   }
 
-  draw(s, p5) {
+  draw() {
+    const s = this.state;
+    const p5 = this.libs.p5;
+
     p5.background(255);
 
     // Draw player
@@ -92,7 +107,8 @@ export default class MircoGame {
     );
   }
 
-  end(s) {
+  end() {
+    const s = this.state;
     return !!s.win;
   }
 }
