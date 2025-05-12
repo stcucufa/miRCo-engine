@@ -1,14 +1,17 @@
 export class GameManager {
   constructor(container) {
     this.container = container;
-    this.p5 = new p5((p) => {
-      p.setup = () => {
-        const canvas = p.createCanvas(800, 600);
-        this.ctx = canvas;
-        canvas.parent(container);
-        p.noLoop(); // Game maanger controls loop
-      };
-    }, container);
+    this.libs = {
+      p5: new p5((p) => {
+        p.setup = () => {
+          const canvas = p.createCanvas(800, 600);
+          this.canvas = canvas;
+          canvas.parent(container);
+          p.noLoop(); // Game manager will control looping
+        };
+      }, container),
+      physics: window.planck,
+    };
 
     this.games = [];
     this.BUFFER_SIZE = 3; // Keep 3 games loaded at all times
@@ -21,7 +24,7 @@ export class GameManager {
       keys: new Set(),
       pressed: (key) => {
         const isPressed = this.input.keys.has(key);
-        console.log(`Checking key ${key}: ${isPressed}`);
+        // console.log(`Checking key ${key}: ${isPressed}`);
         return isPressed;
       },
     };
@@ -86,9 +89,10 @@ export class GameManager {
     this.currentGame = new next.module.default({
       input: this.input,
       assets: next.assets,
+      libs: this.libs,
     });
 
-    this.currentGameState = this.currentGame.init(this.ctx);
+    this.currentGameState = this.currentGame.init(this.canvas);
     this.startGameLoop();
 
     // Automatically end game after time
@@ -121,7 +125,7 @@ export class GameManager {
     // Update current game
 
     this.currentGame.update?.(this.currentGameState, deltaTime);
-    this.currentGame.draw?.(this.currentGameState, this.p5);
+    this.currentGame.draw?.(this.currentGameState, this.libs.p5);
 
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time));
@@ -157,7 +161,7 @@ export class GameManager {
         img.src = basePath + filename;
         await img.decode();
         result[filename] = await new Promise((resolve) => {
-          this.p5.loadImage(basePath + filename, (img) => {
+          this.libs.p5.loadImage(basePath + filename, (img) => {
             resolve(img);
           });
         });

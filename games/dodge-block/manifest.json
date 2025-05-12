@@ -1,6 +1,4 @@
 {
   "name": "dodge-block",
-  "difficulty": "easy",
-  "assets": ["block.png", "player.png"],
-  "libraries": []
+  "assets": ["block.png", "player.png"]
 }

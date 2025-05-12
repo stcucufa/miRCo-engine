@@ -1,10 +1,4 @@
 export default class MircoGame {
-  //   assets = {
-  //     sprites: {
-  //         situp: "situp.png"
-  //     }
-  //   }
-  // CYRENE HOT TIPS #3: use this for libs + assets ; pass model (state) as a football
   constructor({ input, assets, libs }) {
     this.input = input;
     this.assets = assets;
@@ -26,76 +20,77 @@ export default class MircoGame {
       lastKeyState: false,
       startTime: performance.now(),
       gameOver: false,
+      won: false, // set win to true or false by default
       message: "",
     };
   }
 
-  update(s, dt) {
-    if (s.gameOver) return;
-    // console.log({ state });
+  /** logic to update game state */
+  update(state, dt) {
+    if (state.gameOver) return; // stop gameplay once win/lose
+
     // change state based on inputs
     // Track spacebar presses for sit-ups
     const spacePressed = this.input.pressed(" ");
 
     // Only count a sit-up when transitioning from down to up
-    if (spacePressed && !s.lastKeyState && s.athlete.isDown) {
-      s.athlete.sitUpCount++;
-      s.athlete.isDown = false;
+    if (spacePressed && !state.lastKeyState && state.athlete.isDown) {
+      state.athlete.sitUpCount++;
+      state.athlete.isDown = false;
 
-      if (s.athlete.sitUpCount >= s.requiredSitUps) {
-        s.gameOver = true;
-        s.message = "Winner!";
+      if (state.athlete.sitUpCount >= state.requiredSitUps) {
+        state.gameOver = true;
+        state.message = "Winner!";
+        state.won = true;
       }
     }
 
     // Reset position when releasing space
     if (!spacePressed) {
-      s.athlete.isDown = true;
+      state.athlete.isDown = true;
     }
 
-    s.lastKeyState = spacePressed;
+    state.lastKeyState = spacePressed;
   }
 
-  draw(s, p5) {
+  /** render visuals based on game state */
+  draw(state, p5) {
     p5.background(255);
     p5.push();
     p5.translate(
-      s.athlete.x + s.athlete.width / 2,
-      s.athlete.y + s.athlete.height / 2
+      state.athlete.x + state.athlete.width / 2,
+      state.athlete.y + state.athlete.height / 2
     );
-    p5.rotate(s.athlete.isDown ? 0 : -p5.PI / 4);
+    p5.rotate(state.athlete.isDown ? 0 : -p5.PI / 4);
     p5.imageMode(p5.CENTER);
-    p5.image(this.assets["situp.png"], 0, 0, s.athlete.width, s.athlete.height);
+    p5.image(
+      this.assets["situp.png"],
+      0,
+      0,
+      state.athlete.width,
+      state.athlete.height
+    );
     p5.pop();
 
     // Draw counter
     p5.textSize(24);
     p5.textAlign(p5.LEFT);
     p5.fill(0);
-    p5.text(`Sit-ups: ${s.athlete.sitUpCount}/${s.requiredSitUps}`, 10, 30);
+    p5.text(
+      `Sit-ups: ${state.athlete.sitUpCount}/${state.requiredSitUps}`,
+      10,
+      30
+    );
 
-    if (s.gameOver) {
+    if (state.gameOver) {
       p5.textSize(48);
       p5.textAlign(p5.CENTER);
       p5.fill(0, 255, 0); // Green text for winner
-      p5.text(s.message, p5.width / 2, p5.height / 2);
+      p5.text(state.message, p5.width / 2, p5.height / 2);
     }
   }
 
   end(s) {
-    // return true if win
-    if (s.athlete.sitUpCount >= s.requiredSitUps) {
-      console.log("WINNER");
-      return true;
-    }
+    return s.won;
   }
 }
-
-// currentElapsed
-
-// lib (sound + physics)
-// assets
-
-// init: set model  (game state) CREATE
-// update: takes model and modifies <--- libs UPDATE
-// draw: taks ctx and model and draw READ
