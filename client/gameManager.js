@@ -1,3 +1,5 @@
+const DEFAULT_INSTRUCTION = "Ready?";
+
 export class GameManager {
   constructor(container) {
     this.container = container;
@@ -18,6 +20,9 @@ export class GameManager {
     this.currentGame = null;
     this.gameTimer = null;
     this.GAME_DURATION = 5000;
+
+    this.showingInstruction = false;
+    this.currentInstruction = "";
 
     this.input = {
       keys: new Set(),
@@ -88,6 +93,11 @@ export class GameManager {
     // Start refilling buffer
     this.refillBuffer();
 
+    // Show instruction first
+    this.showingInstruction = true;
+    console.log("next manifest", next.manifest);
+    this.currentInstruction = next.manifest?.instruction || DEFAULT_INSTRUCTION;
+
     // Initialize game
     this.currentGame = new next.module.default({
       input: this.input,
@@ -97,6 +107,11 @@ export class GameManager {
 
     this.currentGame.init(this.canvas);
     this.startGameLoop();
+
+    // Hide instruction after 1 second
+    setTimeout(() => {
+      this.showingInstruction = false;
+    }, 1000);
 
     // Automatically end game after time
     this.gameTimer = setTimeout(() => {
@@ -124,10 +139,14 @@ export class GameManager {
     const deltaTime = currentTime - this.lastTime;
     this.lastTime = currentTime;
 
-    /** Inject args */
     // Update current game
 
     this.currentGame.update?.(deltaTime);
+
+    // Draw instruction overlay if needed
+    if (this.showingInstruction) {
+      this.drawInstruction();
+    }
 
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time));
@@ -171,5 +190,26 @@ export class GameManager {
     }
 
     return result;
+  }
+
+  drawInstruction() {
+    console.log("instru", this.currentInstruction);
+    const p5 = this.libs.p5;
+
+    // Save current state
+    p5.push();
+
+    // Draw semi-transparent overlay
+    p5.fill(0, 150);
+    p5.rect(0, 0, p5.width, p5.height);
+
+    // Draw instruction text
+    p5.textSize(32);
+    p5.textAlign(p5.CENTER, p5.CENTER);
+    p5.fill(255);
+    p5.text(this.currentInstruction, p5.width / 2, p5.height / 2);
+
+    // Restore state
+    p5.pop();
   }
 }

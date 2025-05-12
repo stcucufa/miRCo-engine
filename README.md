@@ -78,20 +78,20 @@ export default class MircoGame {
 }
 ```
 
-`manifest.json`: declare game metadata and register assets
+`manifest.json`: declare game metadata and register assets and instructions
 
 IMPORTANT: name of game must match folder name
 
 ```json
 {
   "name": "situps",
-  "assets": ["situp.png"]
+  "assets": ["situp.png"],
+  "instruction": "Do something!"
 }
 ```
 
 ## Roadmap
 
-- Clean up smelly microgame API
 - add dev mode for game makers to iterate on their own game
 - add physics + sound support
 - add transitions and win/lose tracking between games
