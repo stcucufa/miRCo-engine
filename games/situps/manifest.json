@@ -1,4 +1,5 @@
 {
   "name": "situps",
-  "assets": ["situp.png"]
+  "assets": ["situp.png"],
+  "instruction": "Situps!"
 }

@@ -16,7 +16,7 @@ app.use("/games", express.static(MICROGAMES_DIR));
 app.get("/api/games", async (req, res) => {
   try {
     const dirs = await fs.readdir(MICROGAMES_DIR, { withFileTypes: true });
-    const games = await Promise.all(
+    const gameModules = await Promise.all(
       dirs
         .filter((dirent) => dirent.isDirectory())
         .map(async (dirent) => {
@@ -29,16 +29,24 @@ app.get("/api/games", async (req, res) => {
             const manifest = JSON.parse(
               await fs.readFile(manifestPath, "utf-8")
             );
-            return { name: dirent.name, ...manifest };
-          } catch {
-            return null;
+            return {
+              name: dirent.name,
+              path: `/games/${dirent.name}/index.js`,
+              assets: manifest.assets || [],
+            };
+          } catch (err) {
+            console.error(`Error loading manifest for ${dirent.name}:`, err);
+            return {
+              name: dirent.name,
+              path: `/games/${dirent.name}/index.js`,
+              assets: [],
+            };
           }
         })
     );
-
-    res.json(games.filter(Boolean));
+    res.json(gameModules);
   } catch (err) {
-    res.status(500).json({ error: "Failed to list games" });
+    res.status(500).json({ error: "Failed to list game modules" });
   }
 });
 

@@ -1,4 +1,5 @@
 {
   "name": "dodge-block",
-  "assets": ["block.png", "player.png"]
+  "assets": ["block.png", "player.png"],
+  "instruction": "Dodge!"
 }
