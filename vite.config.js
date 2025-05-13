@@ -4,7 +4,7 @@ import { resolve } from "path";
 
 export default defineConfig({
   root: "./client",
-  base: "/",
+  //   base: "/",
 
   build: {
     outDir: resolve(__dirname, "dist"),
@@ -23,5 +23,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [liveReload(["../games/**/*", "./**/*"])], // Update watch paths
+  plugins: [liveReload(["../games/**/*", "./**/*"])],
 });

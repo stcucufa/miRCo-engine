@@ -37,6 +37,26 @@ export class GameManager {
       losses: 0,
     };
 
+    /** Build overlays */
+    this.instructionOverlay = document.createElement("div");
+    this.instructionOverlay.className = "instruction-overlay";
+    this.container.appendChild(this.instructionOverlay);
+
+    this.timerOverlay = document.createElement("div");
+    this.timerOverlay.className = "timer-overlay";
+    this.timerProgress = document.createElement("div");
+    this.timerProgress.className = "timer-progress";
+    this.timerOverlay.appendChild(this.timerProgress);
+    this.container.appendChild(this.timerOverlay);
+
+    this.scoreOverlay = document.createElement("div");
+    this.scoreOverlay.className = "score-overlay";
+    this.scoreOverlay.innerHTML = `
+      <span class="wins">Wins: 0</span>
+      <span class="losses">Losses: 0</span>
+    `;
+    this.container.appendChild(this.scoreOverlay);
+
     // Bind input handlers
     window.addEventListener("keydown", (e) => this.input.keys.add(e.key));
     window.addEventListener("keyup", (e) => this.input.keys.delete(e.key));
@@ -94,9 +114,7 @@ export class GameManager {
     this.refillBuffer();
 
     // Show instruction first
-    this.showingInstruction = true;
-    console.log("next manifest", next.manifest);
-    this.currentInstruction = next.manifest?.instruction || DEFAULT_INSTRUCTION;
+    this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
     // Initialize game
     this.currentGame = new next.module.default({
@@ -108,15 +126,28 @@ export class GameManager {
     this.currentGame.init(this.canvas);
     this.startGameLoop();
 
-    // Hide instruction after 1 second
-    setTimeout(() => {
-      this.showingInstruction = false;
-    }, 1000);
+    this.startTimer();
 
     // Automatically end game after time
     this.gameTimer = setTimeout(() => {
       this.endGame(true); // todo: revist win by default
     }, this.GAME_DURATION);
+  }
+
+  showInstruction(instruction, duration = 1000) {
+    this.showingInstruction = true;
+    this.instructionOverlay.textContent = instruction;
+    this.instructionOverlay.classList.add("visible");
+
+    setTimeout(() => {
+      this.showingInstruction = false;
+      this.instructionOverlay.classList.remove("visible");
+    }, duration);
+  }
+
+  hideInstruction() {
+    this.showingInstruction = false;
+    this.instructionOverlay.classList.remove("visible");
   }
 
   startGameLoop() {
@@ -143,11 +174,6 @@ export class GameManager {
 
     this.currentGame.update?.(deltaTime);
 
-    // Draw instruction overlay if needed
-    if (this.showingInstruction) {
-      this.drawInstruction();
-    }
-
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time));
   }
@@ -161,14 +187,48 @@ export class GameManager {
     }
     // Call end on current game if it exists
     if (this.currentGame) {
-      this.currentGame.end?.();
+      won = this.currentGame.end?.() || false;
+      this.updateScore(won);
     }
 
     // Clean up game state
     this.currentGame = null;
 
+    // reset timer
+    this.resetTimer();
+
     // Schedule next game
     setTimeout(() => this.playNext(), 1000);
+  }
+
+  startTimer() {
+    this.resetTimer();
+
+    // Force reflow to ensure transition reset takes effect
+    this.timerProgress.offsetHeight;
+
+    // Start timer animation
+    this.timerProgress.style.transition = `width ${this.GAME_DURATION}ms linear`;
+    this.timerProgress.style.width = "0%";
+  }
+
+  updateScore(won) {
+    if (won) {
+      this.state.wins++;
+    } else {
+      this.state.losses++;
+    }
+    this.scoreOverlay.querySelector(
+      ".wins"
+    ).textContent = `Wins: ${this.state.wins}`;
+    this.scoreOverlay.querySelector(
+      ".losses"
+    ).textContent = `Losses: ${this.state.losses}`;
+  }
+
+  resetTimer() {
+    this.timerProgress.style.transition = "none";
+    this.timerProgress.style.width = "100%";
   }
 
   async loadAssets(manifest) {
@@ -190,26 +250,5 @@ export class GameManager {
     }
 
     return result;
-  }
-
-  drawInstruction() {
-    console.log("instru", this.currentInstruction);
-    const p5 = this.libs.p5;
-
-    // Save current state
-    p5.push();
-
-    // Draw semi-transparent overlay
-    p5.fill(0, 150);
-    p5.rect(0, 0, p5.width, p5.height);
-
-    // Draw instruction text
-    p5.textSize(32);
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.fill(255);
-    p5.text(this.currentInstruction, p5.width / 2, p5.height / 2);
-
-    // Restore state
-    p5.pop();
   }
 }

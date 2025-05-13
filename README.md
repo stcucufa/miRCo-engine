@@ -86,7 +86,7 @@ IMPORTANT: name of game must match folder name
 {
   "name": "situps",
   "assets": ["situp.png"],
-  "instruction": "Do something!"
+  "instruction": "Situp!"
 }
 ```
 

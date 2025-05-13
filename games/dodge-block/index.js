@@ -50,7 +50,7 @@ export default class MircoGame {
     // Collision detection
     if (this.collides(s.player, s.block)) {
       s.gameOver = true;
-      s.message = "Game Over!";
+      s.message = "Oh no!";
       s.win = false;
     }
     // Win condition
@@ -107,7 +107,6 @@ export default class MircoGame {
   }
 
   end() {
-    const s = this.state;
-    return !!s.win;
+    return this.state.won;
   }
 }
