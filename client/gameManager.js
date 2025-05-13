@@ -42,12 +42,37 @@ export class GameManager {
     this.showingInstruction = false;
     this.currentInstruction = "";
 
+
     this.input = {
       keys: new Set(),
       pressed: (key) => {
         const isPressed = this.input.keys.has(key);
         return isPressed;
       },
+
+      // gamepad support
+      gamepads: [],
+      hasGamepad: () => {
+        if (!'getGamepads' in navigator) {
+          return false;
+        }
+        // Check if any gamepad is connected
+        if (this.input.gamepads === undefined || this.input.gamepads === null) {
+          return false;
+        }
+        return this.input.gamepads.length > 0;
+      },
+      updateGamepadState: () => {
+        const gamepads = navigator.getGamepads();
+        for (const gamepad of gamepads) {
+          if (gamepad) {
+            // Process gamepad input
+            //handleInput(gamepad);
+            this.input.gamepads[gamepad.index] = gamepad;
+          }
+        }
+        requestAnimationFrame(this.input.updateGamepadState);
+      }
     };
 
     this.state = {
@@ -85,6 +110,73 @@ export class GameManager {
     // Bind input handlers
     window.addEventListener("keydown", (e) => this.input.keys.add(e.key));
     window.addEventListener("keyup", (e) => this.input.keys.delete(e.key));
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+    if ('getGamepads' in navigator) {
+      window.addEventListener(
+        "gamepadconnected",
+        (e) => {
+          //this.gamepadHandler(e, true);
+          console.log(
+            "Gamepad connected at index %d: %s. %d buttons, %d axes.",
+            e.gamepad.index,
+            e.gamepad.id,
+            e.gamepad.buttons.length,
+            e.gamepad.axes.length,
+          );
+          const gamepad = e.gamepad;
+          console.log("gamepad", gamepad);
+          console.log("this.gamepads", this.input.gamepads);
+          this.input.gamepads[gamepad.index] = gamepad;
+        },
+        false,
+      );
+
+      window.addEventListener(
+        "gamepaddisconnected",
+        (e) => {
+          //this.gamepadHandler(e, false);
+          console.log(
+            "Gamepad disconnected from index %d: %s",
+            e.gamepad.index,
+            e.gamepad.id,
+          );
+
+          const gamepad = e.gamepad;
+          delete this.input.gamepads[gamepad.index];
+        },
+        false,
+      );
+
+      // Contiously poll for gamepad state
+      this.input.updateGamepadState();
+    }
+  }
+
+  async gamepadHandler(event, connected) {
+    const gamepad = event.gamepad;
+    // Note:
+    //gamepad === navigator.getGamepads()[gamepad.index]
+
+    if (connected) {
+      console.log(
+        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
+        event.gamepad.index,
+        event.gamepad.id,
+        event.gamepad.buttons.length,
+        event.gamepad.axes.length,
+      );
+      this.gamepads[gamepad.index] = gamepad;
+
+    } else {
+      console.log(
+        "Gamepad disconnected from index %d: %s",
+        e.gamepad.index,
+        e.gamepad.id,
+      );
+
+      delete this.gamepads[gamepad.index];
+    }
   }
 
   async init() {
@@ -149,9 +241,8 @@ export class GameManager {
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
-    this.authorOverlay.textContent = `by ${
-      next.manifest?.author || "Anonymous"
-    }`;
+    this.authorOverlay.textContent = `by ${next.manifest?.author || "Anonymous"
+      }`;
 
     // Initialize game
     this.currentGame = new next.module.default({
