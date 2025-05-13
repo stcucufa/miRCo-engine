@@ -169,6 +169,7 @@ example manifest.json
 }
 ```
 
+index.js
 ```js
 p5.image(
   this.assets["situp.png"],
@@ -206,6 +207,8 @@ example manifest.json
   "author": "Claire Froelich"
 }
 ```
+
+index.js
 
 ```js
 // index.js
