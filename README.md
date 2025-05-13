@@ -149,18 +149,18 @@ Supported formats: `.png, `.jpg`
 
 Save your image assets in `/assets` dir inside your game, and declare the filenames in your `manifest.json` assets property
 
-example manifest.json
-
-````json
-// manifest.json
-/*
+```
 situps
     assets/
       situp.png
       fart.mp3
     index.js
     manifest.json
-*/
+```
+
+example manifest.json
+
+````json
 {
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
@@ -186,18 +186,18 @@ Save your sounds in an `/assets` dir in your game, in declare the filename(s) in
 
 miRCo uses [Howler js](https://howlerjs.com/) to play sound. You can access sound controls from `this.libs.sounds`
 
-example manifest.json
-
-```json
-/*
+```
 situps
     assets/
       situp.png
       fart.mp3
     index.js
     manifest.json
-*/
-// manifest.json
+```
+
+example manifest.json
+
+```json
 {
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
