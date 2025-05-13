@@ -39,7 +39,24 @@ export default class MircoGame {
     if (state.gameOver) return; // stop gameplay once win/lose
 
     // change state based on inputs
-    const upPressed = this.input.isPressedUp();
+    var upPressed = this.input.isPressedUp();
+
+    // console.log("input", this.input);
+    if (this.input.hasGamepad()) {
+      // console.log("Gamepad detected");
+      for (const gamepad of this.input.gamepads) {
+        if (!gamepad) continue;
+        // console.log("Using gamepad", gamepad.index);
+        for (var i = 0; i < gamepad.buttons.length; i++) {
+          // console.log("Checking button ", i, "pressed?", gamepad.buttons[i].pressed);
+          if (gamepad.buttons[i].pressed) {
+            console.log("Gamepad", gamepad.index, "button", i, "pressed?", gamepad.buttons[i].pressed);
+            upPressed = true;
+            break;
+          }
+        }
+      }
+    }
 
     // Only count a sit-up when transitioning from down to up
     if (upPressed && !state.lastKeyState && state.athlete.isDown) {
