@@ -167,6 +167,7 @@ example manifest.json
   "instruction": "Situp ↑ !",
   "author": "Claire Froelich"
 }
+```
 
 ```js
 p5.image(
