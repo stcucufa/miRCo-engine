@@ -2,6 +2,8 @@ const DEFAULT_INSTRUCTION = "Ready?";
 
 import { Howl } from "howler";
 
+const DEFAULT_BUFFER_SIZE = 3; // Keep 3 games loaded at all times
+
 export class GameManager {
   constructor(container) {
     this.container = container;
@@ -11,7 +13,7 @@ export class GameManager {
           const canvas = p.createCanvas(800, 600);
           this.canvas = canvas;
           canvas.parent(container);
-          p.noLoop(); // Game manager will control looping
+          p.noLoop(); // game manager will control looping
         };
       }, container),
       sound: {
@@ -28,11 +30,12 @@ export class GameManager {
       },
     };
 
-    this.games = [];
-    this.BUFFER_SIZE = 3; // Keep 3 games loaded at all times
+    this.BUFFER_SIZE = DEFAULT_BUFFER_SIZE;
+    this.loadedGames = [];
+    this.gameManifestsQueue = [];
     this.allGameManifests = [];
-    this.originalManifests = [];
     this.currentGame = null;
+
     this.gameTimer = null;
     this.GAME_DURATION = 5000;
 
@@ -85,73 +88,64 @@ export class GameManager {
   }
 
   async init() {
-    await this.loadGames();
+    await this.loadGameManifests();
+    // await this.refillBuffer(); // await initial load
     this.playNext();
   }
 
-  async loadGames() {
+  async loadGameManifests() {
     const res = await fetch("/api/games");
-
     const manifests = await res.json();
-    // deep copies
-    this.originalManifests = JSON.parse(JSON.stringify(manifests));
-    this.allGameManifests = JSON.parse(JSON.stringify(manifests));
 
-    console.log("Available games:", this.allGameManifests);
+    this.BUFFER_SIZE = Math.min(3, manifests.length);
+
+    this.allGameManifests = [...manifests];
+    this.gameManifestsQueue = this.shuffleArray([...manifests]);
+
+    console.log("Available pending games::", this.gameManifestsQueue);
     // Initial fill of buffer
     await this.refillBuffer();
   }
 
   async refillBuffer() {
-    while (this.games.length < this.BUFFER_SIZE) {
-      // If we're out of manifests, reset the list
-      if (this.allGameManifests.length === 0) {
-        this.allGameManifests = JSON.parse(
-          JSON.stringify(this.originalManifests)
-        );
-
-        // Shuffle the array
-        for (let i = this.allGameManifests.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [this.allGameManifests[i], this.allGameManifests[j]] = [
-            this.allGameManifests[j],
-            this.allGameManifests[i],
-          ];
-        }
+    while (this.loadedGames.length < this.BUFFER_SIZE) {
+      if (this.gameManifestsQueue.length === 0) {
+        console.log("Manifests queue empty, resetting manifests");
+        this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests]);
       }
 
-      // Get next manifest (could be randomized here)
-      const nextManifest = this.allGameManifests.shift();
-      if (nextManifest) {
-        // Pre-load game module and assets
+      const nextManifest = this.gameManifestsQueue.shift();
+      if (!nextManifest) continue;
+
+      try {
         const [mod, assets] = await Promise.all([
-          /* @vite-ignore */
           import(`/games/${nextManifest.name}/index.js`),
           this.loadAssets(nextManifest),
         ]);
 
-        this.games.push({
+        this.loadedGames.push({
           manifest: nextManifest,
           module: mod,
-          assets: assets,
+          assets,
         });
+      } catch (err) {
+        console.error(`Failed to load ${nextManifest.name}:`, err);
       }
     }
   }
 
   async playNext() {
-    console.log("all game manifests", JSON.stringify(this.allGameManifests));
-    // Get next game from buffer
-    const next = this.games.shift();
+    let next = this.loadedGames.shift();
     if (!next) {
-      console.error("Game buffer empty!");
-      return;
+      console.error("Game buffer empty! Refilling...");
+      await this.refillBuffer();
+      next = this.loadedGames.shift();
+      if (!next) {
+        console.error("Still no games after refill");
+        return;
+      }
     }
 
-    // Start refilling buffer
-    this.refillBuffer();
-
-    console.log("nxt manifest", next.manifest);
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
@@ -168,8 +162,12 @@ export class GameManager {
 
     this.currentGame.init(this.canvas);
     this.startGameLoop();
-
     this.startTimer();
+
+    // Start refilling buffer asynchronously
+    this.refillBuffer().catch((err) =>
+      console.error("Failed to refill buffer:", err)
+    );
 
     // Automatically end game after time
     this.gameTimer = setTimeout(() => {
@@ -191,6 +189,15 @@ export class GameManager {
   hideInstruction() {
     this.showingInstruction = false;
     this.instructionOverlay.classList.remove("visible");
+  }
+
+  shuffleArray(arr) {
+    const shuffled = [...arr];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   startGameLoop() {
@@ -232,10 +239,18 @@ export class GameManager {
     if (this.currentGame) {
       won = this.currentGame.end?.() || false;
       this.updateScore(won);
-    }
 
-    // Clean up game state
-    this.currentGame = null;
+      // Clean up game assets
+      if (this.currentGame.assets) {
+        Object.values(this.currentGame.assets).forEach((asset) => {
+          // Dispose of Howl audio
+          if (asset instanceof Howl) {
+            asset.unload();
+          }
+        });
+      }
+      this.currentGame = null;
+    }
 
     // reset timer
     this.resetTimer();
