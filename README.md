@@ -160,7 +160,8 @@ situps
 ```
 
 manifest.json
-````json
+
+```json
 {
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
