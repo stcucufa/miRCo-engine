@@ -34,6 +34,7 @@ app.get("/api/games", async (req, res) => {
               path: `/games/${dirent.name}/index.js`,
               assets: manifest.assets || [],
               instruction: manifest.instruction,
+              author: manifest.author,
             };
           } catch (err) {
             console.error(`Error loading manifest for ${dirent.name}:`, err);

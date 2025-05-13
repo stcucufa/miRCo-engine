@@ -51,13 +51,13 @@ export default class MircoGame {
     if (this.collides(s.player, s.block)) {
       s.gameOver = true;
       s.message = "Oh no!";
-      s.win = false;
+      s.won = false;
     }
     // Win condition
     if (performance.now() - s.startTime > 5000) {
       s.gameOver = true;
       s.message = "Winner!";
-      s.win = true;
+      s.won = true;
     }
 
     // IMPORTANT: call this method at the end of update()

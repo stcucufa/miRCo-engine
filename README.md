@@ -6,8 +6,9 @@ a la Warioware
 
 Pre-reqs: have `node` and `npm` installed
 
+Clone this repo, then:
+
 ```sh
-# clone this repo, then:
 
 # install deps
 npm i
@@ -16,7 +17,11 @@ npm i
 npm run dev
 ```
 
+## Making games
+
 Games are served out of `/games` dir. A game should be a dir titled `your-game-name` with the following structure
+
+To just iterate on your own game on a loop, move all the other `/games` to `archived-games`. Your game in `/games` should be a dir with the following structure
 
 ```
  your-game
@@ -86,7 +91,8 @@ IMPORTANT: name of game must match folder name
 {
   "name": "situps",
   "assets": ["situp.png"],
-  "instruction": "Situp!"
+  "instruction": "Situp !",
+  "author": "Your Name"
 }
 ```
 

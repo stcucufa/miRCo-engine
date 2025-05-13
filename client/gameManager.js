@@ -1,5 +1,7 @@
 const DEFAULT_INSTRUCTION = "Ready?";
 
+import { Howl } from "howler";
+
 export class GameManager {
   constructor(container) {
     this.container = container;
@@ -12,11 +14,24 @@ export class GameManager {
           p.noLoop(); // Game manager will control looping
         };
       }, container),
+      sound: {
+        play: (sound) => {
+          if (sound instanceof Howl) {
+            sound.play();
+          }
+        },
+        stop: (sound) => {
+          if (sound instanceof Howl) {
+            sound.stop();
+          }
+        },
+      },
     };
 
     this.games = [];
     this.BUFFER_SIZE = 3; // Keep 3 games loaded at all times
     this.allGameManifests = [];
+    this.originalManifests = [];
     this.currentGame = null;
     this.gameTimer = null;
     this.GAME_DURATION = 5000;
@@ -42,6 +57,12 @@ export class GameManager {
     this.instructionOverlay.className = "instruction-overlay";
     this.container.appendChild(this.instructionOverlay);
 
+    // Author info
+    this.authorOverlay = document.createElement("div");
+    this.authorOverlay.className = "author-overlay";
+    this.container.appendChild(this.authorOverlay);
+
+    // Timer
     this.timerOverlay = document.createElement("div");
     this.timerOverlay.className = "timer-overlay";
     this.timerProgress = document.createElement("div");
@@ -49,6 +70,7 @@ export class GameManager {
     this.timerOverlay.appendChild(this.timerProgress);
     this.container.appendChild(this.timerOverlay);
 
+    // Scoreboard
     this.scoreOverlay = document.createElement("div");
     this.scoreOverlay.className = "score-overlay";
     this.scoreOverlay.innerHTML = `
@@ -69,9 +91,13 @@ export class GameManager {
 
   async loadGames() {
     const res = await fetch("/api/games");
-    this.allGameManifests = await res.json(); // todo: consider randomizing
-    console.log("Available games:", this.allGameManifests);
 
+    const manifests = await res.json();
+    // deep copies
+    this.originalManifests = JSON.parse(JSON.stringify(manifests));
+    this.allGameManifests = JSON.parse(JSON.stringify(manifests));
+
+    console.log("Available games:", this.allGameManifests);
     // Initial fill of buffer
     await this.refillBuffer();
   }
@@ -80,8 +106,18 @@ export class GameManager {
     while (this.games.length < this.BUFFER_SIZE) {
       // If we're out of manifests, reset the list
       if (this.allGameManifests.length === 0) {
-        const res = await fetch("/api/games");
-        this.allGameManifests = await res.json();
+        this.allGameManifests = JSON.parse(
+          JSON.stringify(this.originalManifests)
+        );
+
+        // Shuffle the array
+        for (let i = this.allGameManifests.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.allGameManifests[i], this.allGameManifests[j]] = [
+            this.allGameManifests[j],
+            this.allGameManifests[i],
+          ];
+        }
       }
 
       // Get next manifest (could be randomized here)
@@ -89,6 +125,7 @@ export class GameManager {
       if (nextManifest) {
         // Pre-load game module and assets
         const [mod, assets] = await Promise.all([
+          /* @vite-ignore */
           import(`/games/${nextManifest.name}/index.js`),
           this.loadAssets(nextManifest),
         ]);
@@ -103,6 +140,7 @@ export class GameManager {
   }
 
   async playNext() {
+    console.log("all game manifests", JSON.stringify(this.allGameManifests));
     // Get next game from buffer
     const next = this.games.shift();
     if (!next) {
@@ -113,8 +151,13 @@ export class GameManager {
     // Start refilling buffer
     this.refillBuffer();
 
+    console.log("nxt manifest", next.manifest);
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
+
+    this.authorOverlay.textContent = `by ${
+      next.manifest?.author || "Anonymous"
+    }`;
 
     // Initialize game
     this.currentGame = new next.module.default({
@@ -244,6 +287,16 @@ export class GameManager {
           this.libs.p5.loadImage(basePath + filename, (img) => {
             resolve(img);
           });
+        });
+      } else if (filename.endsWith(".mp3") || filename.endsWith(".wav")) {
+        result[filename] = new Howl({
+          src: [basePath + filename],
+          preload: true,
+        });
+        // Wait for sound to load
+        await new Promise((resolve, reject) => {
+          result[filename].once("load", resolve);
+          result[filename].once("loaderror", reject);
         });
       }
       // TODO: add audio/sprite sheet/etc support

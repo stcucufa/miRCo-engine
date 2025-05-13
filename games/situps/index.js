@@ -39,12 +39,14 @@ export default class MircoGame {
     if (state.gameOver) return; // stop gameplay once win/lose
 
     // change state based on inputs
-    const spacePressed = this.input.pressed("ArrowUp");
+    const upPressed = this.input.pressed("ArrowUp");
 
     // Only count a sit-up when transitioning from down to up
-    if (spacePressed && !state.lastKeyState && state.athlete.isDown) {
+    if (upPressed && !state.lastKeyState && state.athlete.isDown) {
       state.athlete.sitUpCount++;
       state.athlete.isDown = false;
+
+      this.libs.sound.play(this.assets["fart.mp3"]);
 
       if (state.athlete.sitUpCount >= state.requiredSitUps) {
         state.gameOver = true;
@@ -54,11 +56,11 @@ export default class MircoGame {
     }
 
     // Reset position when releasing space
-    if (!spacePressed) {
+    if (!upPressed) {
       state.athlete.isDown = true;
     }
 
-    state.lastKeyState = spacePressed;
+    state.lastKeyState = upPressed;
 
     // IMPORTANT: call this method at the end of update()
     this.draw();
