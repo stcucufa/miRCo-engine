@@ -1,5 +1,6 @@
 {
   "name": "dodge-block",
   "assets": ["block.png", "player.png"],
-  "instruction": "Dodge!"
+  "instruction": "Dodge!",
+  "author": "Claire Froelich"
 }

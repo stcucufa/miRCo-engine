@@ -59,6 +59,29 @@ canvas {
   transition: width linear;
 }
 
+.score-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.score-overlay .wins {
+  color: #4caf50;
+}
+
+.score-overlay .losses {
+  color: #f44336;
+}
+
 @keyframes bounceIn {
   0% {
     transform: scale(0.3);

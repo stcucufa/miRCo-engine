@@ -1,5 +1,6 @@
 {
   "name": "situps",
   "assets": ["situp.png"],
-  "instruction": "Situps!"
+  "instruction": "Situp ↑ !",
+  "author": "Claire Froelich"
 }
