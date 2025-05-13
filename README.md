@@ -42,7 +42,7 @@ export default class MircoGame {
   constructor({ input, assets, libs }) {
     this.input = input;
     this.assets = assets;
-    this.libs = libs; // TODO: add physics/sound support
+    this.libs = libs;
     // default game state
     this.state = {
       gameOver: false,
@@ -102,6 +102,7 @@ The [`p5` library](https://p5js.org/) is available to you on `this.lib.p5`
 
 You can use this to render things to the screen in the `draw()` method
 
+example from [situps](https://github.com/clairefro/miRCo-engine/tree/main/games/situps) game
 ```js
 draw() {
     const state = this.state;
