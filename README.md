@@ -145,7 +145,7 @@ draw() {
 
 ### Images
 
-Supported formats: `.png, `.jpg`
+Supported formats: `.png`, `.jpg`
 
 Save your image assets in `/assets` dir inside your game, and declare the filenames in your `manifest.json` assets property
 
@@ -158,8 +158,7 @@ situps
     manifest.json
 ```
 
-example manifest.json
-
+manifest.json
 ````json
 {
   "name": "situps",
@@ -182,7 +181,7 @@ p5.image(
 
 ### Sound
 
-Supported formats: `.mp3, `.wav`
+Supported formats: `.mp3`, `.wav`
 
 Save your sounds in an `/assets` dir in your game, in declare the filename(s) in your `manifest.json` assets property.
 
@@ -197,7 +196,7 @@ situps
     manifest.json
 ```
 
-example manifest.json
+manifest.json
 
 ```json
 {
