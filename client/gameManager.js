@@ -48,37 +48,49 @@ export class GameManager {
     this.showingInstruction = false;
     this.currentInstruction = "";
 
-
     this.input = {
       keys: new Set(),
       isPressedLeft: () => {
-        if (this.isDirectionPressed("left")) { return true; }
-        if (this.isGamepadButtonPressed(14)) { return true; } // left D-pad
+        if (this.isDirectionPressed("left")) {
+          return true;
+        }
+        if (this.isGamepadButtonPressed(14)) {
+          return true;
+        } // left D-pad
         return false;
       },
       isPressedRight: () => {
-        if (this.isDirectionPressed("right")) { return true; }
-        if (this.isGamepadButtonPressed(15)) { return true; } // right D-pad
+        if (this.isDirectionPressed("right")) {
+          return true;
+        }
+        if (this.isGamepadButtonPressed(15)) {
+          return true;
+        } // right D-pad
         return false;
       },
       isPressedUp: () => {
-        if (this.isDirectionPressed("up")) { return true; }
-        if (this.isGamepadButtonPressed(12)) { return true; } // up D-pad
+        if (this.isDirectionPressed("up")) {
+          return true;
+        }
+        if (this.isGamepadButtonPressed(12)) {
+          return true;
+        } // up D-pad
         return false;
       },
       isPressedDown: () => {
-        if (this.isDirectionPressed("down")) { return true; }
-        if (this.isGamepadButtonPressed(13)) { return true; } // down D-pad
+        if (this.isDirectionPressed("down")) {
+          return true;
+        }
+        if (this.isGamepadButtonPressed(13)) {
+          return true;
+        } // down D-pad
         return false;
       },
-      // Legacy key check for backward compatibility...
-      // NOT RECOMMENDED: CLAIRE MIGHT RMEOVE
-      pressed: (key) => this.input.keys.has(key),
 
       // gamepad support
       gamepads: [],
       hasGamepad: () => {
-        if (!'getGamepads' in navigator) {
+        if (!"getGamepads" in navigator) {
           return false;
         }
         // Check if any gamepad is connected
@@ -97,7 +109,7 @@ export class GameManager {
           }
         }
         requestAnimationFrame(this.input.updateGamepadState);
-      }
+      },
     };
 
     this.state = {
@@ -137,7 +149,7 @@ export class GameManager {
     window.addEventListener("keyup", (e) => this.input.keys.delete(e.key));
 
     // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
-    if ('getGamepads' in navigator) {
+    if ("getGamepads" in navigator) {
       window.addEventListener(
         "gamepadconnected",
         (e) => {
@@ -147,14 +159,14 @@ export class GameManager {
             e.gamepad.index,
             e.gamepad.id,
             e.gamepad.buttons.length,
-            e.gamepad.axes.length,
+            e.gamepad.axes.length
           );
           const gamepad = e.gamepad;
           console.log("gamepad", gamepad);
           console.log("this.gamepads", this.input.gamepads);
           this.input.gamepads[gamepad.index] = gamepad;
         },
-        false,
+        false
       );
 
       window.addEventListener(
@@ -164,13 +176,13 @@ export class GameManager {
           console.log(
             "Gamepad disconnected from index %d: %s",
             e.gamepad.index,
-            e.gamepad.id,
+            e.gamepad.id
           );
 
           const gamepad = e.gamepad;
           delete this.input.gamepads[gamepad.index];
         },
-        false,
+        false
       );
 
       // Contiously poll for gamepad state
@@ -189,15 +201,14 @@ export class GameManager {
         event.gamepad.index,
         event.gamepad.id,
         event.gamepad.buttons.length,
-        event.gamepad.axes.length,
+        event.gamepad.axes.length
       );
       this.gamepads[gamepad.index] = gamepad;
-
     } else {
       console.log(
         "Gamepad disconnected from index %d: %s",
         e.gamepad.index,
-        e.gamepad.id,
+        e.gamepad.id
       );
 
       delete this.gamepads[gamepad.index];
@@ -290,8 +301,9 @@ export class GameManager {
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
-    this.authorOverlay.textContent = `by ${next.manifest?.author || "Anonymous"
-      }`;
+    this.authorOverlay.textContent = `by ${
+      next.manifest?.author || "Anonymous"
+    }`;
 
     // Initialize game
     this.currentGame = new next.module.default({
