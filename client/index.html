@@ -5,10 +5,31 @@
     <title>miRCo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
   </head>
   <body>
-    <div id="gameContainer"></div>
+    <div id="game-container-wrapper">
+      <div id="game-container"></div>
+    </div>
     <script type="module" src="./main.js"></script>
+    <script>
+      /* disable arrow key controls for scrolling in web page*/
+      window.addEventListener(
+        'keydown',
+        function (e) {
+          if (
+            [
+              'Space',
+              'ArrowUp',
+              'ArrowDown',
+              'ArrowLeft',
+              'ArrowRight',
+            ].indexOf(e.code) > -1
+          ) {
+            e.preventDefault()
+          }
+        },
+        false
+      )
+    </script>
   </body>
 </html>

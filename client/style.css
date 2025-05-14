@@ -1,11 +1,12 @@
 :root {
   /* Colors */
   --color-bg: #222;
-  --color-text: #666;
+  --color-text: #a3a3a3;
   --color-white: #fff;
   --color-black-alpha: rgba(0, 0, 0, 0.7);
   --color-win: #4caf50;
   --color-lose: #f44336;
+  --color-recurse-green: #23a050;
 
   /* Sizes */
   --game-width: 800px;
@@ -30,10 +31,31 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: var(--color-bg);
 }
 
-#gameContainer {
+a {
+  color: var(--color-recurse-green);
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+/* RC logo wrapper*/
+#game-container-wrapper {
+  transform: scale(0.8);
+  margin-top: 2rem;
+  position: relative;
+  background-image: url('./recurse.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 961px; /* hand-calibrated to center canvas lol */
+  min-width: 900px;
+  min-height: 1200px;
+}
+
+#game-container {
+  top: 79px;
   position: relative;
   width: var(--game-width);
   margin: 0 auto;
@@ -41,7 +63,7 @@ body {
 
 canvas {
   background: var(--color-white);
-  box-shadow: 0 0 10px var(--color-black-alpha);
+
   width: var(--game-width);
   height: var(--game-height);
 }
@@ -103,8 +125,9 @@ canvas {
   font-size: var(--font-size-medium);
   font-weight: bold;
   color: var(--color-white);
-  text-shadow: 2px 2px 0 var(--color-black-alpha);
   z-index: var(--z-overlay);
+  padding: 6px;
+  border-bottom: 1px solid var(--color-text);
 }
 
 .score-overlay .wins {

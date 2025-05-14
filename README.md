@@ -31,9 +31,9 @@ Games are just directorys with a mandatory `index.js`and `manifest.json`, and an
 
 Game are currently served out of `/games` dir.
 
-To just iterate on your own game on a loop, move all the other `/games` to `archived-games`.
-
 Copy the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) `your-game` into `/games` in local development, which has boiler templates.
+
+Run server locally with `npm run dev` and navigate to http://localhost:3000/?game=your-game to iterate on your game only
 
 The `manifest.json` file declares game metadata and registers assets and instructions
 
@@ -44,7 +44,8 @@ IMPORTANT: **name of game must match your game dir name**
   "name": "situps",
   "assets": ["situp.png, fart.mp3"],
   "instruction": "Situp !",
-  "author": "Your Name"
+  "author": "Your Name",
+  "authorLink": "https://your-site-or-rc-directory-page.com (optional)" 
 }
 ```
 
@@ -124,7 +125,8 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 
@@ -164,7 +166,8 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 

@@ -1,8 +1,10 @@
 const DEFAULT_INSTRUCTION = 'Ready?'
 
 import { Howl } from 'howler'
+import p5 from 'p5'
 import { BUTTON_NAMES, BUTTON_MAPPINGS } from './gamepadManager.js'
 
+const DEFAULT_AUTHOR_NAME = 'Someone'
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 const KEY_MAPPINGS = {
   left: ['ArrowLeft', 'a', 'A'],
@@ -317,8 +319,8 @@ export class GameManager {
 
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
-
-    this.authorOverlay.textContent = `${next.manifest?.name} by ${next.manifest?.author || 'Anonymous'}`
+    console.log('AUTHOR INFO', this.buildAuthorInfoHTML(next.manifest))
+    this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
 
     // Initialize game
     this.currentGame = new next.module.default({
@@ -499,5 +501,17 @@ export class GameManager {
     }
 
     return result
+  }
+
+  buildAuthorInfoHTML(manifest) {
+    // probably never enter this state
+    if (!manifest) {
+      return `game by ${DEFAULT_AUTHOR_NAME}`
+    }
+    return `${manifest?.name} by ${
+      manifest?.authorLink
+        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+        : manifest?.author || DEFAULT_AUTHOR_NAME
+    }`
   }
 }
