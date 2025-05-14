@@ -459,7 +459,23 @@ export class GameManager {
     const result = {}
     const basePath = `/games/${manifest.name}/assets/`
 
-    for (const filename of manifest.assets || []) {
+    for (const conf of manifest.assets || []) {
+      let filename, options
+
+      if (typeof conf === 'string') {
+        filename = conf
+        options = {}
+      } else {
+        const { file, ...rest } = conf
+        filename = file
+        options = rest
+      }
+
+      if (!filename) {
+        console.warn(`Unable to load asset for game ${manifest.name}`, conf)
+        continue
+      }
+
       if (filename.endsWith('.png') || filename.endsWith('.jpg')) {
         const img = new Image()
         img.src = basePath + filename
@@ -473,6 +489,7 @@ export class GameManager {
         result[filename] = new Howl({
           src: [basePath + filename],
           preload: true,
+          ...options,
         })
         // Wait for sound to load
         await new Promise((resolve, reject) => {
