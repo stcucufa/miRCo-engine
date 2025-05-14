@@ -7,7 +7,7 @@ function gameNameFromQuery() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const container = document.querySelector('#gameContainer')
+  const container = document.querySelector('#game-container')
   if (!container) {
     throw new Error('Game container element not found')
   }
