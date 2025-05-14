@@ -60,6 +60,25 @@ export default class MircoGame {
     }
 
 
+    // Move player
+    if (this.input.hasGamepad()) {
+      for (const gamepad of this.input.gamepads) {
+        if (!gamepad) continue;
+
+        if (gamepad.buttons.length >= 16) {
+          if (gamepad.buttons[14].pressed) {
+            // left D-pad pressed
+            s.player.x -= 0.2 * dt;
+          }
+          if (gamepad.buttons[15].pressed) {
+            // right D-pad pressed
+            s.player.x += 0.2 * dt;
+          }
+        }
+      }
+    }
+
+
     // Clamp player position using p5 width
     s.player.x = Math.max(0, Math.min(800 - s.player.width, s.player.x));
 

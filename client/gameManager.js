@@ -71,6 +71,19 @@ export class GameManager {
         }
         return this.input.gamepads.length > 0;
       },
+
+      // gamepad support
+      gamepads: [],
+      hasGamepad: () => {
+        if (!'getGamepads' in navigator) {
+          return false;
+        }
+        // Check if any gamepad is connected
+        if (this.input.gamepads === undefined || this.input.gamepads === null) {
+          return false;
+        }
+        return this.input.gamepads.length > 0;
+      },
       updateGamepadState: () => {
         const gamepads = navigator.getGamepads();
         for (const gamepad of gamepads) {
