@@ -1,6 +1,6 @@
 {
-  "name": "situps",
-  "assets": ["situp.png", "fart.mp3"],
-  "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+	"name": "situps",
+	"assets": ["situp.png", { "file": "fart.mp3", "volume": 0.5 }],
+	"instruction": "Situp ↑ !",
+	"author": "Claire Froelich"
 }
