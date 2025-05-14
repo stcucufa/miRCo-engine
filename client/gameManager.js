@@ -217,12 +217,11 @@ export class GameManager {
   listenForAnyKeyToStart() {
     const handleInput = () => {
       if (!this.gameLoopStarted) {
-        this.triggerGameplayStart()
         // remove all listeners
         window.removeEventListener('click', handleInput)
         window.removeEventListener('keydown', handleInput)
-        // special stop for the gamepad input (animation frame)
         this.checkingGamepadInput = false
+        this.triggerGameplayStart()
       }
     }
 
