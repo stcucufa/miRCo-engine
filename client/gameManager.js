@@ -12,8 +12,10 @@ const KEY_MAPPINGS = {
 }
 
 export class GameManager {
-  constructor(container) {
+  constructor(container, options = {}) {
     this.container = container
+    this.onlyGame = options.game
+
     this.libs = {
       p5: new p5((p) => {
         p.setup = () => {
@@ -257,7 +259,12 @@ export class GameManager {
 
   async loadGameManifests() {
     const res = await fetch('/api/games')
-    const manifests = await res.json()
+    let manifests = await res.json()
+    manifests = [
+      ...manifests.filter((m) =>
+        this.onlyGame ? this.onlyGame === m.name : true
+      ),
+    ]
 
     this.BUFFER_SIZE = Math.min(3, manifests.length)
 
