@@ -241,12 +241,6 @@ export class GameManager {
         mappings = BUTTON_MAPPINGS.get('default');
       }
 
-      // console.log(`Checking gamepad: `, gamepad.id);
-      // console.log(`for button: `, button_name);
-      // console.log(`DPAD_BUTTON_MAPPINGS: `, DPAD_BUTTON_MAPPINGS);
-      // console.log(`mappings: `, mappings);
-      // console.log(mappings.get(button_name));
-
       const x = mappings.get(button_name);
       if (gamepad.buttons.length >= x) {
         if (gamepad.buttons[x].pressed) {
@@ -313,9 +307,7 @@ export class GameManager {
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
-    this.authorOverlay.textContent = `${next.manifest?.name} by ${
-      next.manifest?.author || "Anonymous"
-    }`;
+    this.authorOverlay.textContent = `${next.manifest?.name} by ${next.manifest?.author || "Anonymous"}`;
 
     // Initialize game
     this.currentGame = new next.module.default({
