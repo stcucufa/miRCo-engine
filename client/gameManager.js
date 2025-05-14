@@ -51,26 +51,29 @@ export class GameManager {
 
     this.input = {
       keys: new Set(),
-      isPressedLeft: () => this.isDirectionPressed("left"),
-      isPressedRight: () => this.isDirectionPressed("right"),
-      isPressedUp: () => this.isDirectionPressed("up"),
-      isPressedDown: () => this.isDirectionPressed("down"),
+      isPressedLeft: () => {
+        if (this.isDirectionPressed("left")) { return true; }
+        if (this.isGamepadButtonPressed(14)) { return true; } // left D-pad
+        return false;
+      },
+      isPressedRight: () => {
+        if (this.isDirectionPressed("right")) { return true; }
+        if (this.isGamepadButtonPressed(15)) { return true; } // right D-pad
+        return false;
+      },
+      isPressedUp: () => {
+        if (this.isDirectionPressed("up")) { return true; }
+        if (this.isGamepadButtonPressed(12)) { return true; } // up D-pad
+        return false;
+      },
+      isPressedDown: () => {
+        if (this.isDirectionPressed("down")) { return true; }
+        if (this.isGamepadButtonPressed(13)) { return true; } // down D-pad
+        return false;
+      },
       // Legacy key check for backward compatibility...
       // NOT RECOMMENDED: CLAIRE MIGHT RMEOVE
       pressed: (key) => this.input.keys.has(key),
-
-      // gamepad support
-      gamepads: [],
-      hasGamepad: () => {
-        if (!'getGamepads' in navigator) {
-          return false;
-        }
-        // Check if any gamepad is connected
-        if (this.input.gamepads === undefined || this.input.gamepads === null) {
-          return false;
-        }
-        return this.input.gamepads.length > 0;
-      },
 
       // gamepad support
       gamepads: [],
@@ -212,6 +215,23 @@ export class GameManager {
     if (!validKeys) return false;
 
     return validKeys.some((key) => this.input.keys.has(key));
+  }
+
+  // TODO these gamepad functions need to accouunt for the actual gamepad in use, maybe by name or type?
+  isGamepadButtonPressed(x) {
+    if (!this.input.hasGamepad()) {
+      return false;
+    }
+    for (const gamepad of this.input.gamepads) {
+      if (!gamepad) continue;
+
+      if (gamepad.buttons.length >= x) {
+        if (gamepad.buttons[x].pressed) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   async loadGameManifests() {
