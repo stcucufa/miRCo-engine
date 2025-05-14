@@ -39,7 +39,7 @@ export default class MircoGame {
     if (state.gameOver) return; // stop gameplay once win/lose
 
     // change state based on inputs
-    const upPressed = this.input.pressed("ArrowUp");
+    const upPressed = this.input.isPressedUp();
 
     // Only count a sit-up when transitioning from down to up
     if (upPressed && !state.lastKeyState && state.athlete.isDown) {

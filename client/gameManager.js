@@ -3,6 +3,12 @@ const DEFAULT_INSTRUCTION = "Ready?";
 import { Howl } from "howler";
 
 const DEFAULT_BUFFER_SIZE = 3; // Keep 3 games loaded at all times
+const KEY_MAPPINGS = {
+  left: ["ArrowLeft", "a", "A"],
+  right: ["ArrowRight", "d", "D"],
+  up: ["ArrowUp", "w", "W"],
+  down: ["ArrowDown", "s", "S"],
+};
 
 export class GameManager {
   constructor(container) {
@@ -44,10 +50,13 @@ export class GameManager {
 
     this.input = {
       keys: new Set(),
-      pressed: (key) => {
-        const isPressed = this.input.keys.has(key);
-        return isPressed;
-      },
+      isPressedLeft: () => this.isDirectionPressed("left"),
+      isPressedRight: () => this.isDirectionPressed("right"),
+      isPressedUp: () => this.isDirectionPressed("up"),
+      isPressedDown: () => this.isDirectionPressed("down"),
+      // Legacy key check for backward compatibility...
+      // NOT RECOMMENDED: CLAIRE MIGHT RMEOVE
+      pressed: (key) => this.input.keys.has(key),
     };
 
     this.state = {
@@ -91,6 +100,13 @@ export class GameManager {
     await this.loadGameManifests();
     // await this.refillBuffer(); // await initial load
     this.playNext();
+  }
+
+  isDirectionPressed(direction) {
+    const validKeys = KEY_MAPPINGS[direction];
+    if (!validKeys) return false;
+
+    return validKeys.some((key) => this.input.keys.has(key));
   }
 
   async loadGameManifests() {

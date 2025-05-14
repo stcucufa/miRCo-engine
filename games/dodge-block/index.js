@@ -38,8 +38,8 @@ export default class MircoGame {
     if (s.gameOver) return;
 
     // Move player
-    if (this.input.pressed("ArrowLeft")) s.player.x -= 0.2 * dt;
-    if (this.input.pressed("ArrowRight")) s.player.x += 0.2 * dt;
+    if (this.input.isPressedLeft()) s.player.x -= 0.2 * dt;
+    if (this.input.isPressedRight()) s.player.x += 0.2 * dt;
 
     // Clamp player position using p5 width
     s.player.x = Math.max(0, Math.min(800 - s.player.width, s.player.x));

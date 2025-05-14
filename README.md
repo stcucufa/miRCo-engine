@@ -103,6 +103,7 @@ The [`p5` library](https://p5js.org/) is available to you on `this.lib.p5`
 You can use this to render things to the screen in the `draw()` method
 
 example from [situps](https://github.com/clairefro/miRCo-engine/tree/main/games/situps) game
+
 ```js
 draw() {
     const state = this.state;
@@ -171,6 +172,7 @@ manifest.json
 ```
 
 index.js
+
 ```js
 p5.image(
   this.assets["situp.png"],
@@ -179,7 +181,7 @@ p5.image(
   state.athlete.width,
   state.athlete.height
 );
-````
+```
 
 ### Sound
 
