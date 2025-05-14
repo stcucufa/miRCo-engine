@@ -35,6 +35,7 @@ app.get('/api/games', async (req, res) => {
               assets: manifest.assets || [],
               instruction: manifest.instruction,
               author: manifest.author,
+              authorLink: manifest.authorLink,
             }
           } catch (err) {
             console.error(`Error loading manifest for ${dirent.name}:`, err)
