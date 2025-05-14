@@ -1,10 +1,11 @@
 {
-	"name": "launch",
-	"assets": [
-		{ "file": "whirring.wav", "volume": 0.8 },
-		"cheers.wav",
-		"penelope.png"
-	],
-	"instruction": "Fly!",
-	"author": "Jack Ratner"
+  "name": "launch",
+  "assets": [
+    { "file": "whirring.wav", "volume": 0.8 },
+    "cheers.wav",
+    "penelope.png"
+  ],
+  "instruction": "Fly!",
+  "author": "Jack Ratner",
+  "authorLink": "https://www.recurse.com/directory/6651-jack-ratner"
 }

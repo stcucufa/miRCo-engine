@@ -4,7 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development concurrently \"nodemon server.js\" \"vite  --config vite.config.js\"",
+    "dev": "NODE_ENV=development concurrently \"nodemon server.js\" \"vite  --config vite.config.js --open\"",
+    "game-dev": "NODE_ENV=development concurrently \"nodemon server.js\" \"vite --config vite.config.js --open '/?game=$npm_config_game&suppress-splash=true'\"",
     "build": "vite build",
     "preview": "vite preview",
     "serve": "node server.js",

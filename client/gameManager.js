@@ -16,7 +16,7 @@ const KEY_MAPPINGS = {
 export class GameManager {
   constructor(container, options = {}) {
     this.container = container
-    this.onlyGame = options.game
+    this.options = options
     this.gameLoopStarted = false
 
     this.libs = {
@@ -47,6 +47,8 @@ export class GameManager {
     this.gameManifestsQueue = []
     this.allGameManifests = []
     this.currentGame = null
+
+    console.log(this.options)
 
     this.gameTimer = null
     this.GAME_DURATION = 5000
@@ -183,7 +185,6 @@ export class GameManager {
         </div>
       `
     container.appendChild(this.splashOverlay)
-    this.listenForAnyKeyToStart()
 
     // Instructions overlay
     this.instructionOverlay = document.createElement('div')
@@ -214,32 +215,38 @@ export class GameManager {
   }
 
   listenForAnyKeyToStart() {
-    window.addEventListener('click', () => {
+    const handleInput = () => {
       if (!this.gameLoopStarted) {
-        this.handleStartButtonInteraction()
+        this.triggerGameplayStart()
+        // remove all listeners
+        window.removeEventListener('click', handleInput)
+        window.removeEventListener('keydown', handleInput)
+        // special stop for the gamepad input (animation frame)
+        this.checkingGamepadInput = false
       }
-    })
-    window.addEventListener('keydown', () => {
-      if (!this.gameLoopStarted) {
-        this.handleStartButtonInteraction()
-      }
-    })
-    // Gamepad input check - TODO: not DRY - merge with existing gamepad manager
+    }
+
+    // Add listeners
+    window.addEventListener('click', handleInput)
+    window.addEventListener('keydown', handleInput)
+
+    // Gamepad input check
+    this.checkingGamepadInput = true
     const checkGamepadInput = () => {
-      if (!this.gameLoopStarted) {
+      if (!this.gameLoopStarted && this.checkingGamepadInput) {
         // check all connected gamepads
         for (const gamepad of this.input.gamepads) {
           if (!gamepad) continue
 
           // check all buttons
           if (gamepad.buttons.some((button) => button.pressed)) {
-            this.handleStartButtonInteraction()
+            handleInput()
             return
           }
 
           // check all axes
           if (gamepad.axes.some((axis) => Math.abs(axis) > 0.5)) {
-            this.handleStartButtonInteraction()
+            handleInput()
             return
           }
         }
@@ -252,7 +259,7 @@ export class GameManager {
     checkGamepadInput()
   }
 
-  handleStartButtonInteraction() {
+  triggerGameplayStart() {
     this.gameLoopStarted = true
     this.hideSplash()
     this.playNext()
@@ -292,7 +299,21 @@ export class GameManager {
   }
 
   async init() {
+    console.log('init')
+    console.log(this.options)
+    console.log(this.options.suppressSplash)
+    if (this.options.suppressSplash) {
+      // hide splash, start gameplay
+      this.hideSplash()
+    } else {
+      // add event lister for handling splash
+      this.listenForAnyKeyToStart()
+    }
     await this.loadGameManifests()
+    if (this.options.suppressSplash) {
+      // start gameplay rigth away
+      this.triggerGameplayStart()
+    }
   }
 
   isDirectionPressed(direction) {
@@ -332,7 +353,7 @@ export class GameManager {
     let manifests = await res.json()
     manifests = [
       ...manifests.filter((m) =>
-        this.onlyGame ? this.onlyGame === m.name : true
+        this.options.game ? this.options.game === m.name : true
       ),
     ]
 
@@ -392,11 +413,11 @@ export class GameManager {
       libs: this.libs,
     })
 
-    this.currentGame.init(this.canvas)
-
-    // Show instruction
+    // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
     this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
+
+    this.currentGame.init(this.canvas)
 
     this.startGameLoop()
 

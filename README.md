@@ -19,7 +19,7 @@ npm run dev
 
 ## Game dev
 
-Games are just directorys with a mandatory `index.js`and `manifest.json`, and an optional `assets/` dir with any images and sounds.
+Games are just directories with a mandatory `index.js`and `manifest.json`, and an optional `assets/` dir with any images and sounds.
 
 ```
  your-game
@@ -33,7 +33,7 @@ Game are currently served out of `/games` dir.
 
 Copy the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) `your-game` into `/games` in local development, which has boiler templates.
 
-Run server locally with `npm run dev` and navigate to http://localhost:3000/?game=your-game to iterate on your game only
+Run a special game-dev server with`npm run game-dev` to iterate on your game only and bypass the start splash screen.
 
 The `manifest.json` file declares game metadata and registers assets and instructions
 
@@ -45,7 +45,7 @@ IMPORTANT: **name of game must match your game dir name**
   "assets": ["situp.png, fart.mp3"],
   "instruction": "Situp !",
   "author": "Your Name",
-  "authorLink": "https://your-site-or-rc-directory-page.com (optional)" 
+  "authorLink": "https://your-site-or-rc-directory-page.com (optional)"
 }
 ```
 

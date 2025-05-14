@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // add query params optimized for game dev
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
