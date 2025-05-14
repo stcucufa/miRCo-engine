@@ -1,6 +1,7 @@
 const DEFAULT_INSTRUCTION = 'Ready?'
 
 import { Howl } from 'howler'
+import p5 from 'p5'
 import { BUTTON_NAMES, BUTTON_MAPPINGS } from './gamepadManager.js'
 
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
