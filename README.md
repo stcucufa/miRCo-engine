@@ -44,7 +44,8 @@ IMPORTANT: **name of game must match your game dir name**
   "name": "situps",
   "assets": ["situp.png, fart.mp3"],
   "instruction": "Situp !",
-  "author": "Your Name"
+  "author": "Your Name",
+  "authorLink": "https://your-site-or-rc-directory-page.com" (optional)
 }
 ```
 
@@ -124,7 +125,8 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 
@@ -164,7 +166,8 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 
