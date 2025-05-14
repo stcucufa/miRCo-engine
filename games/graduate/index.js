@@ -14,7 +14,7 @@ export default class MircoGame {
   /** Create model */
   init(canvas) {
     // Initialize any game state
-    var x = this.getRandomInt(0, 100);
+    var x = this.getRandomInt(0, 100)
 
     const customState = {
       startTime: performance.now(),
@@ -52,9 +52,9 @@ export default class MircoGame {
 
     p5.background(255)
 
-    p5.textSize(80);
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.text('¿🎓?\n\n❌👈      👉❌', p5.width / 2, p5.height / 2);
+    p5.textSize(80)
+    p5.textAlign(p5.CENTER, p5.CENTER)
+    p5.text('¿🎓?\n\n❌👈      👉❌', p5.width / 2, p5.height / 2)
 
     if (state.gameOver) {
       p5.textSize(48)
@@ -70,19 +70,19 @@ export default class MircoGame {
   }
 
   getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
+    return Math.floor(Math.random() * (max - min) + min)
   }
 
   isPrime(num) {
-    if (num <= 1) return false;
-    if (num <= 3) return true;
+    if (num <= 1) return false
+    if (num <= 3) return true
 
-    if (num % 2 === 0 || num % 3 === 0) return false;
+    if (num % 2 === 0 || num % 3 === 0) return false
 
     for (let i = 5; i * i <= num; i += 6) {
-      if (num % i === 0 || num % (i + 2) === 0) return false;
+      if (num % i === 0 || num % (i + 2) === 0) return false
     }
 
-    return true;
+    return true
   }
 }

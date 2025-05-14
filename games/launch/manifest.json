@@ -1,8 +1,8 @@
 {
   "name": "launch",
   "assets": [
-    { "file": "whirring.wav", "volume": 0.8 },
-    "cheers.wav",
+    { "file": "whirring.wav", "volume": 1.2 },
+    { "file": "cheers.wav", "volume": 1.3 },
     "penelope.png"
   ],
   "instruction": "Fly!",
