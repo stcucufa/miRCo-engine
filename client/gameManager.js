@@ -17,6 +17,7 @@ export class GameManager {
   constructor(container, options = {}) {
     this.container = container
     this.onlyGame = options.game
+    this.gameLoopStarted = false
 
     this.libs = {
       p5: new p5((p) => {
@@ -123,32 +124,7 @@ export class GameManager {
       losses: 0,
     }
 
-    /** Build overlays */
-    this.instructionOverlay = document.createElement('div')
-    this.instructionOverlay.className = 'instruction-overlay'
-    this.container.appendChild(this.instructionOverlay)
-
-    // Author info
-    this.authorOverlay = document.createElement('div')
-    this.authorOverlay.className = 'author-overlay'
-    this.container.appendChild(this.authorOverlay)
-
-    // Timer
-    this.timerOverlay = document.createElement('div')
-    this.timerOverlay.className = 'timer-overlay'
-    this.timerProgress = document.createElement('div')
-    this.timerProgress.className = 'timer-progress'
-    this.timerOverlay.appendChild(this.timerProgress)
-    this.container.appendChild(this.timerOverlay)
-
-    // Scoreboard
-    this.scoreOverlay = document.createElement('div')
-    this.scoreOverlay.className = 'score-overlay'
-    this.scoreOverlay.innerHTML = `
-      <span class="wins">Wins: 0</span>
-      <span class="losses">Losses: 0</span>
-    `
-    this.container.appendChild(this.scoreOverlay)
+    this.buildOverlays(this.container)
 
     // Bind input handlers
     window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
@@ -196,6 +172,100 @@ export class GameManager {
     }
   }
 
+  buildOverlays(container) {
+    // Splash overlay
+    this.splashOverlay = document.createElement('div')
+    this.splashOverlay.className = 'start-splash-overlay'
+    this.splashOverlay.innerHTML = `
+        <div class="splash-content">
+          <h1>miRCo Engine</h1>
+          <button class="start-button">START</button>
+        </div>
+      `
+    container.appendChild(this.splashOverlay)
+    this.listenForAnyKeyToStart()
+
+    // Instructions overlay
+    this.instructionOverlay = document.createElement('div')
+    this.instructionOverlay.className = 'instruction-overlay'
+    container.appendChild(this.instructionOverlay)
+
+    // Author info
+    this.authorOverlay = document.createElement('div')
+    this.authorOverlay.className = 'author-overlay'
+    container.appendChild(this.authorOverlay)
+
+    // Timer
+    this.timerOverlay = document.createElement('div')
+    this.timerOverlay.className = 'timer-overlay'
+    this.timerProgress = document.createElement('div')
+    this.timerProgress.className = 'timer-progress'
+    this.timerOverlay.appendChild(this.timerProgress)
+    container.appendChild(this.timerOverlay)
+
+    // Scoreboard
+    this.scoreOverlay = document.createElement('div')
+    this.scoreOverlay.className = 'score-overlay'
+    this.scoreOverlay.innerHTML = `
+       <span class="wins">Wins: 0</span>
+       <span class="losses">Losses: 0</span>
+     `
+    container.appendChild(this.scoreOverlay)
+  }
+
+  listenForAnyKeyToStart() {
+    window.addEventListener('click', () => {
+      if (!this.gameLoopStarted) {
+        this.handleStartButtonInteraction()
+      }
+    })
+    window.addEventListener('keydown', () => {
+      if (!this.gameLoopStarted) {
+        this.handleStartButtonInteraction()
+      }
+    })
+    // Gamepad input check - TODO: not DRY - merge with existing gamepad manager
+    const checkGamepadInput = () => {
+      if (!this.gameLoopStarted) {
+        // check all connected gamepads
+        for (const gamepad of this.input.gamepads) {
+          if (!gamepad) continue
+
+          // check all buttons
+          if (gamepad.buttons.some((button) => button.pressed)) {
+            this.handleStartButtonInteraction()
+            return
+          }
+
+          // check all axes
+          if (gamepad.axes.some((axis) => Math.abs(axis) > 0.5)) {
+            this.handleStartButtonInteraction()
+            return
+          }
+        }
+        // continue checking if game hasn't started
+        requestAnimationFrame(checkGamepadInput)
+      }
+    }
+
+    // Start checking for gamepad input
+    checkGamepadInput()
+  }
+
+  handleStartButtonInteraction() {
+    this.gameLoopStarted = true
+    this.hideSplash()
+    this.playNext()
+  }
+
+  showSplash() {
+    this.splashOverlay.style.display = 'flex'
+  }
+
+  hideSplash() {
+    this.splashOverlay.style.display = 'none'
+  }
+
   async gamepadHandler(event, connected) {
     const gamepad = event.gamepad
     // Note:
@@ -223,8 +293,6 @@ export class GameManager {
 
   async init() {
     await this.loadGameManifests()
-    // await this.refillBuffer(); // await initial load
-    this.playNext()
   }
 
   isDirectionPressed(direction) {
@@ -317,11 +385,6 @@ export class GameManager {
       }
     }
 
-    // Show instruction first
-    this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
-    console.log('AUTHOR INFO', this.buildAuthorInfoHTML(next.manifest))
-    this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
-
     // Initialize game
     this.currentGame = new next.module.default({
       input: this.input,
@@ -330,8 +393,12 @@ export class GameManager {
     })
 
     this.currentGame.init(this.canvas)
+
+    // Show instruction
+    this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
+    this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
+
     this.startGameLoop()
-    this.startTimer()
 
     // Start refilling buffer asynchronously
     this.refillBuffer().catch((err) =>
@@ -373,6 +440,7 @@ export class GameManager {
     this.isRunning = true
     this.lastTime = performance.now()
     this.tick()
+    this.startTimer()
   }
 
   stopGameLoop() {
