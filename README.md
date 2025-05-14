@@ -45,7 +45,7 @@ IMPORTANT: **name of game must match your game dir name**
   "assets": ["situp.png, fart.mp3"],
   "instruction": "Situp !",
   "author": "Your Name",
-  "authorLink": "https://your-site-or-rc-directory-page.com" (optional)
+  "authorLink": "https://your-site-or-rc-directory-page.com (optional)" 
 }
 ```
 
