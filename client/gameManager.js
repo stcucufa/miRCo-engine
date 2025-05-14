@@ -1,7 +1,7 @@
 const DEFAULT_INSTRUCTION = 'Ready?'
 
-import { Howl } from "howler";
-import { BUTTON_NAMES, BUTTON_MAPPINGS } from "./gamepadManager.js";
+import { Howl } from 'howler'
+import { BUTTON_NAMES, BUTTON_MAPPINGS } from './gamepadManager.js'
 
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 const KEY_MAPPINGS = {
@@ -57,9 +57,9 @@ export class GameManager {
         }
 
         if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_LEFT)) {
-          return true;
+          return true
         }
-        return false;
+        return false
       },
       isPressedRight: () => {
         if (this.isDirectionPressed('right')) {
@@ -67,19 +67,18 @@ export class GameManager {
         }
 
         if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_RIGHT)) {
-          return true;
+          return true
         }
-        return false;
-
+        return false
       },
       isPressedUp: () => {
         if (this.isDirectionPressed('up')) {
           return true
         }
         if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_UP)) {
-          return true;
+          return true
         }
-        return false;
+        return false
       },
       isPressedDown: () => {
         if (this.isDirectionPressed('down')) {
@@ -87,9 +86,9 @@ export class GameManager {
         }
 
         if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_DOWN)) {
-          return true;
+          return true
         }
-        return false;
+        return false
       },
 
       // gamepad support
@@ -108,7 +107,7 @@ export class GameManager {
         const gamepads = navigator.getGamepads()
         for (const gamepad of gamepads) {
           if (gamepad) {
-            this.input.gamepads[gamepad.index] = gamepad;
+            this.input.gamepads[gamepad.index] = gamepad
           }
         }
         requestAnimationFrame(this.input.updateGamepadState)
@@ -190,7 +189,6 @@ export class GameManager {
 
       // Contiously poll for gamepad state
       this.input.updateGamepadState()
-
     }
   }
 
@@ -240,14 +238,14 @@ export class GameManager {
     for (const gamepad of this.input.gamepads) {
       if (!gamepad) continue
 
-      var mappings;
+      var mappings
       if (BUTTON_MAPPINGS.has(gamepad.id)) {
-        mappings = BUTTON_MAPPINGS.get(gamepad.id);
+        mappings = BUTTON_MAPPINGS.get(gamepad.id)
       } else {
-        mappings = BUTTON_MAPPINGS.get('default');
+        mappings = BUTTON_MAPPINGS.get('default')
       }
 
-      const x = mappings.get(button_name);
+      const x = mappings.get(button_name)
       if (gamepad.buttons.length >= x) {
         if (gamepad.buttons[x].pressed) {
           return true
@@ -313,7 +311,7 @@ export class GameManager {
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
 
-    this.authorOverlay.textContent = `${next.manifest?.name} by ${next.manifest?.author || "Anonymous"}`;
+    this.authorOverlay.textContent = `${next.manifest?.name} by ${next.manifest?.author || 'Anonymous'}`
 
     // Initialize game
     this.currentGame = new next.module.default({
@@ -383,7 +381,7 @@ export class GameManager {
     this.lastTime = currentTime
 
     // Update current game
-    this.currentGame.update?.(deltaTime);
+    this.currentGame.update?.(deltaTime)
 
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time))
