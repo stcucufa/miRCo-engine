@@ -2,5 +2,6 @@
   "name": "primes",
   "assets": [],
   "instruction": "Is it prime?",
-  "author": "Rippy"
+  "author": "Rippy",
+  "authorLink": "https://www.recurse.com/directory/3531-jonathan-rippy"
 }
