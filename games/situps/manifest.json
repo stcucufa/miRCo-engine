@@ -1,4 +1,4 @@
-{
+{ 
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",

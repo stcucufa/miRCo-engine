@@ -1,0 +1,10 @@
+{
+	"name": "launch",
+	"assets": [
+		{ "file": "whirring.wav", "volume": 0.8 },
+		"cheers.wav",
+		"penelope.png"
+	],
+	"instruction": "Fly!",
+	"author": "Jack Ratner"
+}
