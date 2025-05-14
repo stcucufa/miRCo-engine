@@ -30,10 +30,23 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: var(--color-bg);
 }
 
-#gameContainer {
+/* RC logo wrapper*/
+#game-container-wrapper {
+  transform: scale(0.8);
+  margin-top: 2rem;
+  position: relative;
+  background-image: url('./recurse.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 961px; /* hand-calibrated to center canvas lol */
+  width: 900px;
+  height: 1200px;
+}
+
+#game-container {
+  top: 93px;
   position: relative;
   width: var(--game-width);
   margin: 0 auto;

@@ -7,7 +7,29 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <div id="gameContainer"></div>
+    <div id="game-container-wrapper">
+      <div id="game-container"></div>
+    </div>
     <script type="module" src="./main.js"></script>
+    <script>
+      /* disable arrow key controls for scrolling in web page*/
+      window.addEventListener(
+        'keydown',
+        function (e) {
+          if (
+            [
+              'Space',
+              'ArrowUp',
+              'ArrowDown',
+              'ArrowLeft',
+              'ArrowRight',
+            ].indexOf(e.code) > -1
+          ) {
+            e.preventDefault()
+          }
+        },
+        false
+      )
+    </script>
   </body>
 </html>
