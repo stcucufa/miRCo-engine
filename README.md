@@ -8,13 +8,24 @@ Pre-reqs: have `node` and `npm` installed
 
 Clone this repo, then:
 
-```sh
+If you are working on the Game Manger (Engine) itself, `npm run dev`
 
+```sh
 # install deps
 npm i
 
 # run dev server
 npm run dev
+```
+
+If you are working on the Game Manger (Engine) itself, `npm run dev`
+
+```sh
+# install deps
+npm i
+
+# run game-dev server (only plays your game, suppresses splash screen)
+npm run game-dev --game=your-game`
 ```
 
 ## Game dev
@@ -33,7 +44,7 @@ Game are currently served out of `/games` dir.
 
 Copy the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) `your-game` into `/games` in local development, which has boiler templates.
 
-Run a special game-dev server with`npm run game-dev` to iterate on your game only and bypass the start splash screen.
+Run a special game-dev server with `npm run game-dev --game=your-game` to iterate on your game only and bypass the start splash screen.
 
 The `manifest.json` file declares game metadata and registers assets and instructions
 

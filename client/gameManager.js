@@ -231,31 +231,31 @@ export class GameManager {
 
     // Gamepad input check
     this.checkingGamepadInput = true
-    const checkGamepadInput = () => {
-      if (!this.gameLoopStarted && this.checkingGamepadInput) {
-        // check all connected gamepads
-        for (const gamepad of this.input.gamepads) {
-          if (!gamepad) continue
+    // const checkGamepadInput = () => {
+    //   if (!this.gameLoopStarted && this.checkingGamepadInput) {
+    //     // check all connected gamepads
+    //     for (const gamepad of this.input.gamepads) {
+    //       if (!gamepad) continue
 
-          // check all buttons
-          if (gamepad.buttons.some((button) => button.pressed)) {
-            handleInput()
-            return
-          }
+    //       // check all buttons
+    //       if (gamepad.buttons.some((button) => button.pressed)) {
+    //         handleInput()
+    //         return
+    //       }
 
-          // check all axes
-          if (gamepad.axes.some((axis) => Math.abs(axis) > 0.5)) {
-            handleInput()
-            return
-          }
-        }
-        // continue checking if game hasn't started
-        requestAnimationFrame(checkGamepadInput)
-      }
-    }
+    //       // check all axes
+    //       if (gamepad.axes.some((axis) => Math.abs(axis) > 0.5)) {
+    //         handleInput()
+    //         return
+    //       }
+    //     }
+    //     // continue checking if game hasn't started
+    //     requestAnimationFrame(checkGamepadInput)
+    //   }
+    // }
 
     // Start checking for gamepad input
-    checkGamepadInput()
+    // checkGamepadInput()
   }
 
   triggerGameplayStart() {
@@ -346,7 +346,22 @@ export class GameManager {
     }
     return false
   }
+  isAnyGamepadButtonPressed() {
+    if (!this.input.hasGamepad()) {
+      return false
+    }
+    for (const gamepad of this.input.gamepads) {
+      if (!gamepad) continue
 
+      for (let i = 0; i <= gamepad.buttons.length; i++) {
+        // check if nay button is pressed
+        if (gamepad.buttons[x].pressed) {
+          return true
+        }
+      }
+    }
+    return false
+  }
   async loadGameManifests() {
     const res = await fetch('/api/games')
     let manifests = await res.json()
