@@ -301,7 +301,7 @@ export class GameManager {
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION);
 
-    this.authorOverlay.textContent = `by ${
+    this.authorOverlay.textContent = `${next.manifest?.name} by ${
       next.manifest?.author || "Anonymous"
     }`;
 
