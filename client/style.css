@@ -50,20 +50,22 @@ a:hover {
   background-image: url('./recurse.svg');
   background-position: center;
   background-repeat: no-repeat;
-  background-size: 961px;
-  /* hand-calibrated to center canvas lol */
-  min-width: 900px;
-  min-height: 1200px;
+  background-size: 961px; /* hand-calibrated to center canvas lol */
+  width: 900px;
+  height: 1200px;
 }
 
 #game-container {
-  top: 79px;
   position: relative;
+  top: 79px;
+  left: 50px;
+  background-color: transparent;
   width: var(--game-width);
-  margin: 0 auto;
+  height: calc(var(--game-height) + 50px);
 }
 
 canvas {
+  position: relative;
   background: var(--color-white);
   width: var(--game-width);
   height: var(--game-height);
