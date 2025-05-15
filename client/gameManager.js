@@ -35,14 +35,6 @@ export class GameManager {
     this.gameLoopStarted = false
 
     this.libs = {
-      p5: new p5((p) => {
-        p.setup = () => {
-          const canvas = p.createCanvas(800, 600)
-          this.canvas = canvas
-          canvas.parent(this.container)
-          p.noLoop() // game manager will control looping
-        }
-      }, this.container),
       sound: {
         play: (sound) => {
           if (sound instanceof Howl) {
@@ -310,7 +302,8 @@ export class GameManager {
     console.log(this.options.round)
     if (this.options.round) {
       this.state.round = parseInt(this.options.round)
-      this.scoreOverlay.querySelector('.round').textContent = `Round: ${this.state.round}`
+      this.scoreOverlay.querySelector('.round').textContent =
+        `Round: ${this.state.round}`
     }
     if (this.options.suppressSplash) {
       // hide splash, start gameplay
@@ -408,7 +401,7 @@ export class GameManager {
       try {
         const [mod, assets] = await Promise.all([
           import(`/games/${nextManifest.name}/index.js`),
-          this.loadAssets(nextManifest),
+          this.preloadMusic(nextManifest),
         ])
 
         this.loadedGames.push({
@@ -434,12 +427,14 @@ export class GameManager {
       }
     }
 
+    const { p5, images } = await this.bootstrapP5(next.manifest)
+
     // Initialize game
     this.currentGame = new next.module.default({
       input: this.input,
-      assets: next.assets,
-      libs: this.libs,
       mirco: this.state,
+      assets: { ...next.assets, ...images },
+      libs: { ...this.libs, p5 },
     })
 
     // Show instruction first
@@ -481,7 +476,7 @@ export class GameManager {
     const shuffled = [...arr]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
   }
@@ -536,6 +531,7 @@ export class GameManager {
           }
         })
       }
+      this.currentGame.libs.p5.remove()
       this.currentGame = null
     }
 
@@ -576,21 +572,43 @@ export class GameManager {
     this.timerProgress.style.width = '100%'
   }
 
-  async loadAssets(manifest) {
+  async bootstrapP5(manifest) {
+    const theP5 = new p5((p) => {
+      p.setup = () => {
+        const canvas = p.createCanvas(800, 600)
+        this.canvas = canvas
+        canvas.parent(this.container)
+        p.noLoop() // game manager will control looping
+      }
+    }, this.container)
+    const images = await this.loadImages(manifest, theP5)
+
+    theP5.setup()
+
+    return { p5: theP5, images }
+  }
+
+  assetConf(conf) {
+    let filename, options
+
+    if (typeof conf === 'string') {
+      filename = conf
+      options = {}
+    } else {
+      const { file, ...rest } = conf
+      filename = file
+      options = rest
+    }
+
+    return { filename, options }
+  }
+
+  async loadImages(manifest, p5) {
     const result = {}
     const basePath = `/games/${manifest.name}/assets/`
 
     for (const conf of manifest.assets || []) {
-      let filename, options
-
-      if (typeof conf === 'string') {
-        filename = conf
-        options = {}
-      } else {
-        const { file, ...rest } = conf
-        filename = file
-        options = rest
-      }
+      const { filename } = this.assetConf(conf)
 
       if (!filename) {
         console.warn(`Unable to load asset for game ${manifest.name}`, conf)
@@ -602,11 +620,30 @@ export class GameManager {
         img.src = basePath + filename
         await img.decode()
         result[filename] = await new Promise((resolve) => {
-          this.libs.p5.loadImage(basePath + filename, (img) => {
+          p5.loadImage(basePath + filename, (img) => {
             resolve(img)
           })
         })
-      } else if (filename.endsWith('.mp3') || filename.endsWith('.wav')) {
+      }
+      // TODO: add audio/sprite sheet/etc support
+    }
+
+    return result
+  }
+
+  async preloadMusic(manifest) {
+    const result = {}
+    const basePath = `/games/${manifest.name}/assets/`
+
+    for (const conf of manifest.assets || []) {
+      const { filename, options } = this.assetConf(conf)
+
+      if (!filename) {
+        console.warn(`Unable to load asset for game ${manifest.name}`, conf)
+        continue
+      }
+
+      if (filename.endsWith('.mp3') || filename.endsWith('.wav')) {
         result[filename] = new Howl({
           src: [basePath + filename],
           preload: true,
@@ -618,7 +655,6 @@ export class GameManager {
           result[filename].once('loaderror', reject)
         })
       }
-      // TODO: add audio/sprite sheet/etc support
     }
 
     return result
@@ -629,10 +665,11 @@ export class GameManager {
     if (!manifest) {
       return `game by ${DEFAULT_AUTHOR_NAME}`
     }
-    return `${manifest?.name} by ${manifest?.authorLink
-      ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
-      : manifest?.author || DEFAULT_AUTHOR_NAME
-      }`
+    return `${manifest?.name} by ${
+      manifest?.authorLink
+        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+        : manifest?.author || DEFAULT_AUTHOR_NAME
+    }`
   }
 
   resetP5Instance() {
