@@ -292,15 +292,15 @@ export class GameManager {
 
     // focus directory and first game on open
     if (!isVisible) {
-      this.directoryOverlay.setAttribute('tabindex', '-1')
-      this.directoryOverlay.focus()
+      this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
 
-      const firstGameLink = this.directoryOverlay.querySelector(
-        '.directory-game-entry a'
-      )
-      if (firstGameLink) {
-        firstGameLink.focus()
-      }
+      // Focus on directory after a brief delay to ensure DOM is ready
+      setTimeout(() => {
+        const dir = this.directoryOverlay.querySelector('.directory-overlay')
+        if (dir) {
+          dir.focus()
+        }
+      }, 0)
     }
   }
 
