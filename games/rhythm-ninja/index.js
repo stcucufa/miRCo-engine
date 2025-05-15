@@ -78,6 +78,7 @@ export default class MircoGame {
           ) {
             this.state.notes[i].caught = true
             this.state.score += 1
+            this.libs.sound.play(this.assets['cyrene-nom.mp3'])
           }
         })
         this.score += 1
@@ -149,7 +150,6 @@ export default class MircoGame {
       this.assets[
         this.state.foods[Math.floor(Math.random() * this.state.foods.length)]
       ]
-    console.log(this.whenToHit(now))
     return {
       ...this.state.baseNote,
       asset: getFood,

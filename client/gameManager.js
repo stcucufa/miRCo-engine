@@ -222,6 +222,18 @@ export class GameManager {
        <span class="losses">Losses: 0</span>
      `
     container.appendChild(this.scoreOverlay)
+
+    // Directory
+    this.directoryButton = document.createElement('button')
+    this.directoryButton.className = 'directory-button'
+    this.directoryButton.textContent = '📋 Games'
+    this.directoryButton.onclick = () => this.toggleDirectory()
+    container.appendChild(this.directoryButton)
+
+    this.directoryOverlay = document.createElement('div')
+    this.directoryOverlay.className = 'directory-overlay'
+    this.directoryOverlay.style.display = 'none'
+    container.appendChild(this.directoryOverlay)
   }
 
   triggerGameplayStart = () => {
@@ -270,6 +282,45 @@ export class GameManager {
     this.splashOverlay.style.display = 'none'
   }
 
+  toggleDirectory() {
+    const isVisible = this.directoryOverlay.style.display === 'block'
+    this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+  }
+
+  updateDirectory() {
+    // Sort games alphabetically by name
+    const sortedGames = [...this.allGameManifests].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+
+    const gamesList = sortedGames
+      .map(
+        (game) => `
+          <li class="directory-game-entry">
+              <a href="?game=${game.name}" 
+                   class="directory-game-entry" 
+                   tabindex="0"
+                   data-game="${game.name}"
+                   role="button">
+                    <span class="directory-game-name">${game.name}</span>
+                    <span class="directory-game-author">by ${game.author || DEFAULT_AUTHOR_NAME}</span>
+                </a>
+          </li>
+      `
+      )
+      .join('')
+
+    this.directoryOverlay.innerHTML = `
+      <div class="directory-header">
+          <h2>Available Games</h2>
+          <button class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
+      </div>
+      <ul class="directory-games-list">
+          ${gamesList}
+      </ul>
+  `
+  }
+
   async gamepadHandler(event, connected) {
     const gamepad = event.gamepad
     // Note:
@@ -309,6 +360,7 @@ export class GameManager {
       this.listenForAnyKeyToStart()
     }
     await this.loadGameManifests()
+
     if (this.options.suppressSplash) {
       // start gameplay rigth away
       this.triggerGameplayStart()
@@ -379,6 +431,10 @@ export class GameManager {
 
     console.log('Available pending games::', this.gameManifestsQueue)
     // Initial fill of buffer
+
+    // expose all games in directory
+    this.updateDirectory()
+
     await this.refillBuffer()
   }
 
