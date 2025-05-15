@@ -1,10 +1,10 @@
 export default class MircoGame {
-  constructor({ input, assets, libs, gameState }) {
+  constructor({ input, assets, libs, miRCoState }) {
     /** Leave most of this stuff - it's to help you! */
     this.input = input
     this.assets = assets
     this.libs = libs
-    this.gameState = gameState
+    this.miRCoState = miRCoState
 
     this.state = {
       // defaults

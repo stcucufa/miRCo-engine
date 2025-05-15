@@ -439,7 +439,7 @@ export class GameManager {
       input: this.input,
       assets: next.assets,
       libs: this.libs,
-      gameState: this.state,
+      miRCoState: this.miRCoState,
     })
 
     // Show instruction first
