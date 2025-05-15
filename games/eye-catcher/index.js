@@ -26,7 +26,7 @@ export default class MircoGame {
       },
       imageWidth: 72,
       imageHeight: 72,
-      distance: 72,
+      distance: 24,
       minX: 0.1 * canvas.width,
       maxX: 0.9 * canvas.width,
       minY: 0.1 * canvas.height,
@@ -77,7 +77,7 @@ export default class MircoGame {
     eyes.h += (0.5 - Math.random()) * 0.05 * dt;
     if (eyes.cooldown <= 0) {
       eyes.quadrant = Math.cos(eyes.h) > 0 ? (Math.sin(eyes.h) < 0 ? "ne" : "se") : (Math.sin(eyes.h) < 0 ? "nw" : "sw");
-      eyes.cooldown = 200;
+      eyes.cooldown = 333;
     } else {
       eyes.cooldown -= dt;
     }
@@ -92,31 +92,31 @@ export default class MircoGame {
     this.draw();
   }
 
-  /** render visuals based on game state */
   draw() {
-    const { ghost, eyes, imageWidth, imageHeight, won } = this.state;
+    const { ghost, eyes, distance, imageWidth, imageHeight, won } = this.state;
     const { p5 } = this.libs;
+
     p5.background("#102040");
     p5.imageMode(p5.CENTER);
+
     p5.push();
     p5.translate(ghost.x, ghost.y);
     p5.image(this.assets["ghost.png"], 0, 0, imageWidth, imageHeight);
     p5.pop();
+
+    if (won) {
+      p5.textSize(48);
+      p5.textAlign(p5.CENTER);
+      p5.fill("#40ff40");
+      p5.text("WINNER", p5.width / 2, p5.height / 2);
+    }
+
     p5.push();
     p5.translate(eyes.x, eyes.y);
     p5.image(this.assets[`eyes-${eyes.quadrant}.png`], 0, 0, imageWidth, imageHeight);
     p5.pop();
-
-    if (won) {
-      p5.textSize(48)
-      p5.textAlign(p5.CENTER)
-      p5.fill(0, 255, 0) // green
-      p5.text("WINNER", p5.width / 2, p5.height / 2)
-    }
-
   }
 
-  /** return true if game is won, false if lost */
   end() {
     return this.state.won;
   }
