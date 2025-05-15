@@ -1,9 +1,10 @@
 export default class MircoGame {
-  constructor({ input, assets, libs }) {
+  constructor({ input, assets, libs, mirco }) {
     /** Leave most of this stuff - it's to help you! */
     this.input = input
     this.assets = assets
     this.libs = libs
+    this.mirco = mirco
 
     this.state = {
       // defaults
@@ -88,13 +89,13 @@ export default class MircoGame {
     p5.strokeWeight(2);
     p5.ellipse(400, 300, 150, 180);
   }
-  
+
   // Draw the cracks
   drawCracks(p5, cracks) {
     p5.stroke(0);
     p5.strokeWeight(2);
     p5.noFill();
-  
+
     if (cracks >= 1) {
       p5.line(341, 358, 374, 335);
     }

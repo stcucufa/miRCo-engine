@@ -231,7 +231,7 @@ update(dt) {
 
 ## Submitting games
 
-For now, just make a PR with your game (and other games) in the `/games` dir!
+For now, just make a PR with your game (and other games) in the `/games` dir! Please fork this repo if you want to contribute a game so you can make a PR.
 
 Soon I will move game submission to a separate repo, and fetch all the games on launch.
 
