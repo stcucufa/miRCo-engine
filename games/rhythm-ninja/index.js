@@ -12,7 +12,8 @@ export default class MircoGame {
   init(canvas) {
     const p5 = this.libs.p5
     p5.noStroke()
-    p5.textSize(32)
+    p5.textSize(24)
+    p5.textStyle(p5.BOLD)
     this.state = {
       foods: [
         'banana_1f34c.png',
@@ -118,7 +119,12 @@ export default class MircoGame {
     )
     p5.fill(0)
     p5.text(
-      '' + this.state.score + ' / ' + this.noteCount() + '\n' + 'press up!',
+      'caught: ' +
+        this.state.score +
+        ' / ' +
+        this.noteCount() +
+        '\n' +
+        '(press up!)',
       15,
       45
     )
