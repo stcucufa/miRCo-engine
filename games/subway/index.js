@@ -53,10 +53,11 @@ export default class MircoGame {
     }
 
     const now = Date.now()
+    const timeout = 1000 / (this.mirco.round / 2)
     if (
       Math.random() > 0.75 &&
       !state.passenger.isVisible &&
-      now - state.passenger.lastVisible > 1000
+      now - state.passenger.lastVisible > timeout
     ) {
       state.passenger.isVisible = true
       state.passenger.lastVisible = now
@@ -84,7 +85,6 @@ export default class MircoGame {
     /** Render stuff with p5.... */
     p5.background(255)
 
-    // p5.imageMode(p5.CENTER)
     p5.image(this.assets['subway-bg.jpg'], -500, -300, 1500, 900)
     p5.image(this.assets['man.png'], 200, 50)
     p5.image(
