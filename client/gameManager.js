@@ -4,6 +4,8 @@ import { Howl } from 'howler'
 import p5 from 'p5'
 import { BUTTON_NAMES, BUTTON_MAPPINGS } from './gamepadManager.js'
 
+const CANVAS_WIDTH = 800
+const CANVAS_HEIGHT = 600
 const DEFAULT_AUTHOR_NAME = 'Someone'
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 const KEY_MAPPINGS = {
@@ -11,6 +13,19 @@ const KEY_MAPPINGS = {
   right: ['ArrowRight', 'd', 'D'],
   up: ['ArrowUp', 'w', 'W'],
   down: ['ArrowDown', 's', 'S'],
+}
+const P5_DEFAULTS = {
+  width: CANVAS_WIDTH,
+  height: CANVAS_HEIGHT,
+  settings: {
+    background: 255,
+    imageMode: 'CENTER',
+    rectMode: 'CORNER',
+    angleMode: 'RADIANS',
+    colorMode: 'RGB',
+    textAlign: ['LEFT', 'BASELINE'],
+    textSize: 12,
+  },
 }
 
 export class GameManager {
@@ -24,10 +39,10 @@ export class GameManager {
         p.setup = () => {
           const canvas = p.createCanvas(800, 600)
           this.canvas = canvas
-          canvas.parent(container)
+          canvas.parent(this.container)
           p.noLoop() // game manager will control looping
         }
-      }, container),
+      }, this.container),
       sound: {
         play: (sound) => {
           if (sound instanceof Howl) {
@@ -48,13 +63,14 @@ export class GameManager {
     this.allGameManifests = []
     this.currentGame = null
 
-    console.log(this.options)
-
     this.gameTimer = null
     this.GAME_DURATION = 5000
 
     this.showingInstruction = false
     this.currentInstruction = ''
+
+    // apply shared default settings to p5
+    // this.resetP5Instance()
 
     this.input = {
       keys: new Set(),
@@ -301,7 +317,6 @@ export class GameManager {
       this.hideSplash()
     } else {
       // add event lister for handling splash
-      console.log('INIT() this.gameplaystared', this.gameLoopStarted)
       this.listenForAnyKeyToStart()
     }
     await this.loadGameManifests()
@@ -502,6 +517,7 @@ export class GameManager {
   endGame(won) {
     this.isRunning = false
     clearTimeout(this.gameTimer)
+    // this.resetP5Instance()
     if (this.frameId) {
       cancelAnimationFrame(this.frameId)
       this.frameId = null
@@ -617,5 +633,26 @@ export class GameManager {
       ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
       : manifest?.author || DEFAULT_AUTHOR_NAME
       }`
+  }
+
+  resetP5Instance() {
+    const p = this.libs.p5
+    p.draw = () => {
+      p.clear()
+      const s = P5_DEFAULTS.settings
+      p.background(s.background)
+      p.imageMode(p[s.imageMode])
+      p.rectMode(p[s.rectMode])
+      p.angleMode(p[s.angleMode])
+      p.colorMode(p[s.colorMode])
+      p.textAlign(p[s.textAlign[0]], p[s.textAlign[1]])
+      p.textSize(s.textSize)
+      p.resetMatrix()
+
+      p.noLoop() // managed by game manager
+    }
+
+    // force a single draw call
+    p.redraw()
   }
 }

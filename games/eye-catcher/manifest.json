@@ -1,0 +1,5 @@
+{
+  "name": "eye-catcher",
+  "assets": ["ghost.png", "eyes-ne.png", "eyes-nw.png", "eyes-se.png", "eyes-sw.png"],
+  "instruction": "Catch! ←↑→↓"
+}

@@ -15,50 +15,92 @@ export default class MircoGame {
     const customState = {
       player: {
         x: 100,
-        y: 220,
-        width: 40,
-        height: 40,
+        y: canvas.height - 100,
+        width: 60,
+        height: 60,
+        rotation: 0,
+        scale: 1,
       },
-      block: {
-        x: Math.random() * (canvas.width - 40),
-        y: -40,
-        width: 100,
-        height: 70,
-        speed: 0.2,
-      },
+      canvasWidth: canvas.width,
+      canvasHeight: canvas.height,
+      blocks: [],
+      blockSpawnInterval: 300,
+      lastSpawnTime: performance.now(),
       startTime: performance.now(),
-
+      startTime: performance.now(),
       message: '',
     }
 
+    customState.blocks.push(this.createBlock())
+
     this.state = { ...this.state, ...customState }
+
+    this.libs.sound.play(this.assets['alive.mp3'])
     return
+  }
+
+  createBlock() {
+    return {
+      x: Math.random() * (this.state.canvasWidth - 100),
+      y: -70,
+      width: 100,
+      height: 70,
+      speed: 0.2 + Math.random() * 0.1,
+    }
   }
 
   update(dt) {
     const s = this.state
-    if (s.gameOver) return
+
+    if (s.gameOver) {
+      if (s.won) {
+        s.player.rotation += 0.2 * dt
+      } else {
+        s.player.rotation -= 0.3 * dt
+        s.player.scale = Math.max(0.1, s.player.scale - 0.002 * dt)
+      }
+      this.draw()
+      return
+    }
 
     // Move player
-    if (this.input.isPressedLeft()) s.player.x -= 0.2 * dt
-    if (this.input.isPressedRight()) s.player.x += 0.2 * dt
+    if (this.input.isPressedLeft()) s.player.x -= 0.5 * dt
+    if (this.input.isPressedRight()) s.player.x += 0.5 * dt
 
     // Clamp player position using p5 width
-    s.player.x = Math.max(0, Math.min(800 - s.player.width, s.player.x))
+    s.player.x = Math.max(
+      0,
+      Math.min(this.state.canvasWidth - s.player.width, s.player.x)
+    )
 
-    // Move block
-    s.block.y += s.block.speed * dt
-
-    // Collision detection
-    if (this.collides(s.player, s.block)) {
-      s.gameOver = true
-      s.message = 'Oh no!'
-      s.won = false
+    // spawn new blocks
+    const currentTime = performance.now()
+    if (currentTime - s.lastSpawnTime > s.blockSpawnInterval) {
+      s.blocks.push(this.createBlock())
+      s.lastSpawnTime = currentTime
     }
-    // Win condition
-    if (performance.now() - s.startTime > 5000) {
+
+    // move existing blocks
+    s.blocks = s.blocks.filter((block) => {
+      // Move block
+      block.y += block.speed * dt
+
+      // Check collision
+      if (this.collides(s.player, block)) {
+        this.libs.sound.play(this.assets['ah.mp3'])
+        s.gameOver = true
+        s.message = 'Death is not the end.'
+        s.won = false
+      }
+
+      // Keep block if it's still on screen
+      return block.y < 600 // canvas height
+    })
+
+    // win condition
+    if (performance.now() - s.startTime > 4500) {
       s.gameOver = true
-      s.message = 'Winner!'
+      s.message = "Stayin' alive!"
       s.won = true
     }
 
@@ -72,7 +114,13 @@ export default class MircoGame {
 
     p5.background(255)
 
-    // Draw player
+    p5.push()
+
+    if (s.gameOver) {
+      p5.rotate(s.player.rotation * 0.05)
+      p5.scale(s.player.scale)
+    }
+    // draw player
     p5.image(
       this.assets['player.png'],
       s.player.x,
@@ -80,31 +128,34 @@ export default class MircoGame {
       s.player.width,
       s.player.height
     )
+    p5.pop()
 
-    // Draw block
-    p5.image(
-      this.assets['block.png'],
-      s.block.x,
-      s.block.y,
-      s.block.width,
-      s.block.height
-    )
+    // draw blocks
+    s.blocks.forEach((block) => {
+      p5.image(
+        this.assets['block.png'],
+        block.x,
+        block.y,
+        block.width,
+        block.height
+      )
+    })
 
     // Draw game over message
     if (s.gameOver) {
       p5.textSize(48)
       p5.textAlign(p5.CENTER)
-      p5.fill(s.message.includes('Winner') ? [0, 255, 0] : [255, 0, 0])
+      p5.fill(s.won ? [0, 255, 0] : [255, 0, 0])
       p5.text(s.message, p5.width / 2, p5.height / 2)
     }
   }
 
-  collides(a, b) {
+  collides(p, b) {
     return (
-      a.x < b.x + b.width &&
-      a.x + a.width > b.x &&
-      a.y < b.y + b.height &&
-      a.y + a.height > b.y
+      p.x < b.x + b.width &&
+      p.x + p.width > b.x &&
+      p.y < b.y + b.height &&
+      p.y + p.height > b.y
     )
   }
 
