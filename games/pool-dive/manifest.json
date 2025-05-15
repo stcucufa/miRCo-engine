@@ -1,0 +1,7 @@
+{
+  "name": "pool-dive",
+  "assets": ["person.png"],
+  "instruction": "Hold up arrow and release to jump!",
+  "author": "Mihika and Rishi",
+  "authorLink": "https://www.youtube.com/watch?v=MR47_EcAzHE"
+}
