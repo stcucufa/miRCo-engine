@@ -256,6 +256,7 @@ canvas {
   background: none;
   border: none;
   font-size: 24px;
+  color: var(--color-white);
   cursor: pointer;
   padding: 0 8px;
 }
