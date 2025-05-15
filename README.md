@@ -1,4 +1,4 @@
-## miCRo - micro game engine for RC
+## miRCo - micro game engine for RC
 
 a cheap knock-off Warioware accepting Recuse Center community contributed microgames
 
