@@ -1,0 +1,27 @@
+{
+  "name": "rhythm-ninja",
+  "assets": [
+    "octopus_1f419.png",
+    "octopus_invert_1f419.png",
+    "banana_1f34c.png",
+    "cooked-rice_1f35a.png",
+    "curry-and-rice_1f35b.png",
+    "fried-shrimp_1f364.png",
+    "grapes_1f347.png",
+    "green-apple_1f34f.png",
+    "lemon_1f34b.png",
+    "melon_1f348.png",
+    "pear_1f350.png",
+    "pineapple_1f34d.png",
+    "red-apple_1f34e.png",
+    "rice-ball_1f359.png",
+    "rice-cracker_1f358.png",
+    "steaming-bowl_1f35c.png",
+    "sushi_1f363.png",
+    "tangerine_1f34a.png",
+    "watermelon_1f349.png",
+    "tick.mp3"
+  ],
+  "instruction": "Slice on beat!",
+  "author": "Cyrene Zhang"
+}
