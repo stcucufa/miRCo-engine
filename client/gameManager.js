@@ -296,10 +296,6 @@ export class GameManager {
   }
 
   async init() {
-    console.log('init')
-    console.log(this.options)
-    console.log(this.options.suppressSplash)
-    console.log(this.options.round)
     if (this.options.round) {
       this.state.round = parseInt(this.options.round)
       this.scoreOverlay.querySelector('.round').textContent =
@@ -392,7 +388,7 @@ export class GameManager {
         console.log('Manifests queue empty, resetting manifests')
         this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
         this.state.round++
-        console.log('Current round:', this.state.round)
+        // console.log('Current round:', this.state.round)
       }
 
       const nextManifest = this.gameManifestsQueue.shift()
