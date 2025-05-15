@@ -94,8 +94,8 @@ export default class MircoGame {
 
   /** render visuals based on game state */
   draw() {
-    const { ghost, eyes, imageWidth, imageHeight } = this.state;
-    const p5 = this.libs.p5;
+    const { ghost, eyes, imageWidth, imageHeight, won } = this.state;
+    const { p5 } = this.libs;
     p5.background("#102040");
     p5.imageMode(p5.CENTER);
     p5.push();
@@ -106,6 +106,14 @@ export default class MircoGame {
     p5.translate(eyes.x, eyes.y);
     p5.image(this.assets[`eyes-${eyes.quadrant}.png`], 0, 0, imageWidth, imageHeight);
     p5.pop();
+
+    if (won) {
+      p5.textSize(48)
+      p5.textAlign(p5.CENTER)
+      p5.fill(0, 255, 0) // green
+      p5.text("WINNER", p5.width / 2, p5.height / 2)
+    }
+
   }
 
   /** return true if game is won, false if lost */
