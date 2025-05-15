@@ -222,6 +222,18 @@ export class GameManager {
        <span class="losses">Losses: 0</span>
      `
     container.appendChild(this.scoreOverlay)
+
+    // Directory
+    this.directoryButton = document.createElement('button')
+    this.directoryButton.className = 'directory-button'
+    this.directoryButton.textContent = 'All Games'
+    this.directoryButton.onclick = () => this.toggleDirectory()
+    container.appendChild(this.directoryButton)
+
+    this.directoryOverlay = document.createElement('div')
+    this.directoryOverlay.className = 'directory-overlay'
+    this.directoryOverlay.style.display = 'none'
+    container.appendChild(this.directoryOverlay)
   }
 
   triggerGameplayStart = () => {
@@ -270,6 +282,60 @@ export class GameManager {
     this.splashOverlay.style.display = 'none'
   }
 
+  toggleDirectory() {
+    const isVisible = this.directoryOverlay.style.display === 'block'
+    this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+  }
+
+  updateDirectory() {
+    // sort games alphabetically by name
+    const sortedGames = [...this.allGameManifests].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+
+    const gamesList = sortedGames
+      .map(
+        (game) => `
+          <li class="directory-game-entry">
+              <a href="?game=${game.name}" 
+                   class="directory-game-entry" 
+                   tabindex="0"
+                   data-game="${game.name}"
+                   role="button">
+                    <span class="directory-game-name">${game.name}</span>
+                    <span class="directory-game-author">by ${game.author || DEFAULT_AUTHOR_NAME}</span>
+                </a>
+          </li>
+      `
+      )
+      .join('')
+
+    // add extra backlink if game param exists (currently loading only one game)
+    const backLink = this.options.game
+      ? `
+    <li class="directory-game-entry directory-back-entry">
+        <a href="/" 
+           class="directory-game-entry" 
+           tabindex="0"
+           role="button">
+            <span class="directory-game-name">< Back to all games</span>
+        </a>
+    </li>
+  `
+      : ''
+
+    this.directoryOverlay.innerHTML = `
+      <div class="directory-header">
+          <h2>Available Games (${this.allGameManifests.length})</h2>
+          <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
+      </div>
+      <ul class="directory-games-list">
+          ${gamesList}
+          ${backLink}
+      </ul>
+  `
+  }
+
   async gamepadHandler(event, connected) {
     const gamepad = event.gamepad
     // Note:
@@ -296,10 +362,6 @@ export class GameManager {
   }
 
   async init() {
-    console.log('init')
-    console.log(this.options)
-    console.log(this.options.suppressSplash)
-    console.log(this.options.round)
     if (this.options.round) {
       this.state.round = parseInt(this.options.round)
       this.scoreOverlay.querySelector('.round').textContent =
@@ -313,6 +375,7 @@ export class GameManager {
       this.listenForAnyKeyToStart()
     }
     await this.loadGameManifests()
+
     if (this.options.suppressSplash) {
       // start gameplay rigth away
       this.triggerGameplayStart()
@@ -383,6 +446,10 @@ export class GameManager {
 
     console.log('Available pending games::', this.gameManifestsQueue)
     // Initial fill of buffer
+
+    // expose all games in directory
+    this.updateDirectory()
+
     await this.refillBuffer()
   }
 
@@ -392,7 +459,7 @@ export class GameManager {
         console.log('Manifests queue empty, resetting manifests')
         this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
         this.state.round++
-        console.log('Current round:', this.state.round)
+        // console.log('Current round:', this.state.round)
       }
 
       const nextManifest = this.gameManifestsQueue.shift()
