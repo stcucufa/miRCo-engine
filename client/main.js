@@ -5,6 +5,13 @@ function gameNameFromQuery() {
 
   return new URLSearchParams(location.search).get('game')
 }
+
+function roundFromQuery() {
+  if (typeof window === undefined) return null
+
+  return new URLSearchParams(location.search).get('round')
+}
+
 function supressSplashFromQuery() {
   if (typeof window === undefined) return null
   const val = new URLSearchParams(location.search).get('suppress-splash')
@@ -20,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameManager = new GameManager(container, {
     game: gameNameFromQuery(),
     suppressSplash: supressSplashFromQuery(),
+    round: roundFromQuery(),
   })
   gameManager.init()
 })

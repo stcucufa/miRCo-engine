@@ -138,6 +138,7 @@ export class GameManager {
     }
 
     this.state = {
+      round: 0,
       wins: 0,
       losses: 0,
     }
@@ -224,6 +225,7 @@ export class GameManager {
     this.scoreOverlay = document.createElement('div')
     this.scoreOverlay.className = 'score-overlay'
     this.scoreOverlay.innerHTML = `
+       <span class="round">Round: 0</span>
        <span class="wins">Wins: 0</span>
        <span class="losses">Losses: 0</span>
      `
@@ -302,6 +304,14 @@ export class GameManager {
   }
 
   async init() {
+    console.log('init')
+    console.log(this.options)
+    console.log(this.options.suppressSplash)
+    console.log(this.options.round)
+    if (this.options.round) {
+      this.state.round = parseInt(this.options.round)
+      this.scoreOverlay.querySelector('.round').textContent = `Round: ${this.state.round}`
+    }
     if (this.options.suppressSplash) {
       // hide splash, start gameplay
       this.hideSplash()
@@ -388,6 +398,8 @@ export class GameManager {
       if (this.gameManifestsQueue.length === 0) {
         console.log('Manifests queue empty, resetting manifests')
         this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
+        this.state.round++
+        console.log('Current round:', this.state.round)
       }
 
       const nextManifest = this.gameManifestsQueue.shift()
@@ -427,6 +439,7 @@ export class GameManager {
       input: this.input,
       assets: next.assets,
       libs: this.libs,
+      miRCoState: this.miRCoState,
     })
 
     // Show instruction first
@@ -468,7 +481,7 @@ export class GameManager {
     const shuffled = [...arr]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
   }
@@ -550,6 +563,8 @@ export class GameManager {
     } else {
       this.state.losses++
     }
+    this.scoreOverlay.querySelector('.round').textContent =
+      `Round: ${this.state.round}`
     this.scoreOverlay.querySelector('.wins').textContent =
       `Wins: ${this.state.wins}`
     this.scoreOverlay.querySelector('.losses').textContent =
@@ -614,11 +629,10 @@ export class GameManager {
     if (!manifest) {
       return `game by ${DEFAULT_AUTHOR_NAME}`
     }
-    return `${manifest?.name} by ${
-      manifest?.authorLink
-        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
-        : manifest?.author || DEFAULT_AUTHOR_NAME
-    }`
+    return `${manifest?.name} by ${manifest?.authorLink
+      ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+      : manifest?.author || DEFAULT_AUTHOR_NAME
+      }`
   }
 
   resetP5Instance() {
