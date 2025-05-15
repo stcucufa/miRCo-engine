@@ -14,6 +14,7 @@ export default class MircoGame {
 
   /** Create model */
   init(canvas) {
+    this.libs.sound.play(this.assets['alive.mp3'])
     const CANVAS_WIDTH = canvas.width // 400;
     const CANVAS_HEIGHT = canvas.height // (400 * 16) / 9;
     const GRAVITY = 1000;
@@ -148,7 +149,25 @@ export default class MircoGame {
 
     this.state.pathEndX = this.state.personX + intervalChange * elapsedSeconds;
     this.state.pathEndY = this.state.poolY;
-    this.libs.p5.line(this.state.pathEndX, this.state.pathEndY, this.state.CANVAS_WIDTH / 3, this.state.CANVAS_HEIGHT / 3);
+
+    // this.libs.p5.line(this.state.pathEndX, this.state.pathEndY, this.state.CANVAS_WIDTH / 3, this.state.CANVAS_HEIGHT / 3);
+
+    const steps = 30;
+    const dt = this.state.timeToJump / steps;
+
+    const tempVelocityX = (this.state.pathEndX - this.state.personX) / this.state.timeToJump;
+    const tempVelocityY = (this.state.pathEndY - this.state.personY - 0.5 * this.state.GRAVITY * this.state.timeToJump * this.state.timeToJump) / this.state.timeToJump;
+
+    this.libs.p5.stroke(0);
+    this.libs.p5.noFill();
+    this.libs.p5.beginShape();
+    for (let i = 0; i <= steps; i++) {
+      const t = i * dt;
+      const x = this.state.personX + tempVelocityX * t;
+      const y = this.state.personY + tempVelocityY * t + 0.5 * this.state.GRAVITY * t * t;
+      this.libs.p5.vertex(x, y);
+    }
+    this.libs.p5.endShape();
   }
 
   keyPressed() {
