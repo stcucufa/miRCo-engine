@@ -1,0 +1,6 @@
+{
+  "name": "ghosted",
+  "assets": ["gigachad.png"],
+  "instruction": "Match (Right) or Ghost (Left)!",
+  "author": "Funmi Oludaiye"
+}
