@@ -1,0 +1,13 @@
+{
+  "name": "subway",
+  "assets": [
+    "subway-bg.jpg",
+    "man.png",
+    "suitcase.png",
+    "passenger-right.png",
+    "passenger-left.png"
+  ],
+  "instruction": "Block the passenger!",
+  "author": "Ivy Wong",
+  "authorLink": "https://www.recurse.com/directory/6093-ivy-wong"
+}
