@@ -70,7 +70,7 @@ export class GameManager {
     this.currentInstruction = ''
 
     // apply shared default settings to p5
-    this.resetP5Instance()
+    // this.resetP5Instance()
 
     this.input = {
       keys: new Set(),
@@ -504,7 +504,7 @@ export class GameManager {
   endGame(won) {
     this.isRunning = false
     clearTimeout(this.gameTimer)
-    this.resetP5Instance()
+    // this.resetP5Instance()
     if (this.frameId) {
       cancelAnimationFrame(this.frameId)
       this.frameId = null
