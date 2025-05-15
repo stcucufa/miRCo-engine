@@ -1,8 +1,9 @@
 export default class MircoGame {
-  constructor({ input, assets, libs }) {
+  constructor({ input, assets, libs, gameState }) {
     this.input = input
     this.assets = assets
     this.libs = libs
+    this.gameState = gameState
 
     this.state = {
       // defaults
@@ -14,7 +15,7 @@ export default class MircoGame {
   /** Create model */
   init(canvas) {
     // Initialize any game state
-    var x = this.getRandomInt(0, 100)
+    var x = this.getRandomInt(0, 100 * (1 + this.gameState.round))
 
     const customState = {
       startTime: performance.now(),

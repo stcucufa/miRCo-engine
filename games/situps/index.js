@@ -1,8 +1,9 @@
 export default class MircoGame {
-  constructor({ input, assets, libs }) {
+  constructor({ input, assets, libs, gameState }) {
     this.input = input
     this.assets = assets
     this.libs = libs
+    this.gameState = gameState
 
     this.state = {
       // defaults
@@ -23,7 +24,7 @@ export default class MircoGame {
         isDown: true,
         sitUpCount: 0,
       },
-      requiredSitUps: 5,
+      requiredSitUps: 5 + this.gameState.round,
       lastKeyState: false,
       startTime: performance.now(),
       message: '',
