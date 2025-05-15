@@ -226,7 +226,7 @@ export class GameManager {
     // Directory
     this.directoryButton = document.createElement('button')
     this.directoryButton.className = 'directory-button'
-    this.directoryButton.textContent = '📋 Games'
+    this.directoryButton.textContent = 'All Games'
     this.directoryButton.onclick = () => this.toggleDirectory()
     container.appendChild(this.directoryButton)
 
@@ -288,7 +288,7 @@ export class GameManager {
   }
 
   updateDirectory() {
-    // Sort games alphabetically by name
+    // sort games alphabetically by name
     const sortedGames = [...this.allGameManifests].sort((a, b) =>
       a.name.localeCompare(b.name)
     )
@@ -310,13 +310,28 @@ export class GameManager {
       )
       .join('')
 
+    // add extra backlink if game param exists (currently loading only one game)
+    const backLink = this.options.game
+      ? `
+    <li class="directory-game-entry directory-back-entry">
+        <a href="/" 
+           class="directory-game-entry" 
+           tabindex="0"
+           role="button">
+            <span class="directory-game-name">< Back to all games</span>
+        </a>
+    </li>
+  `
+      : ''
+
     this.directoryOverlay.innerHTML = `
       <div class="directory-header">
-          <h2>Available Games</h2>
-          <button class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
+          <h2>Available Games (${this.allGameManifests.length})</h2>
+          <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
       </div>
       <ul class="directory-games-list">
           ${gamesList}
+          ${backLink}
       </ul>
   `
   }
