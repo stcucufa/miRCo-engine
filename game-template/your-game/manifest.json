@@ -2,5 +2,6 @@
   "name": "your-game",
   "assets": [],
   "instruction": "One or two word instruction!",
-  "author": "Your Name"
+  "author": "Your Name (optional)",
+  "authorLink": "https://your-site-or-rc-directory-page.com (optional)"
 }

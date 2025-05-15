@@ -1,6 +1,8 @@
-## miCRo - micro game engine for RC
+## miRCo - micro game engine for RC
 
-a la Warioware
+a cheap knock-off Warioware accepting Recuse Center community contributed microgames
+
+<img width="660" alt="image" src="https://github.com/user-attachments/assets/65f8e99b-2941-4104-8f75-68607dc215cc" />
 
 ## Running locally
 
@@ -8,8 +10,9 @@ Pre-reqs: have `node` and `npm` installed
 
 Clone this repo, then:
 
-```sh
+If you are working on the Game Manger (Engine) itself, `npm run dev`
 
+```sh
 # install deps
 npm i
 
@@ -17,11 +20,19 @@ npm i
 npm run dev
 ```
 
+If you are working on the Game Manger (Engine) itself, `npm run dev`
+
+```sh
+# install deps
+npm i
+
+# run game-dev server (only plays your game, suppresses splash screen)
+npm run game-dev --game=your-game`
+```
+
 ## Game dev
 
-Games are served out of `/games` dir. A game should be a dir titled `your-game-name` with the following structure
-
-To just iterate on your own game on a loop, move all the other `/games` to `archived-games`. Your game in `/games` dir should have
+Games are just directories with a mandatory `index.js`and `manifest.json`, and an optional `assets/` dir with any images and sounds.
 
 ```
  your-game
@@ -31,70 +42,30 @@ To just iterate on your own game on a loop, move all the other `/games` to `arch
     manifest.json
 ```
 
-Assets are optional, if your game uses them. The only mandatory parts are an index.js file, and a manifest.json
+Game are currently served out of `/games` dir.
 
-See `/games/situps` [here](https://github.com/clairefro/miRCo-engine/tree/main/games/situps) for a basic example game
+Copy the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) `your-game` into `/games` in local development, which has boiler templates.
 
-`index.js` template
+Run a special game-dev server with `npm run game-dev --game=your-game` to iterate on your game only and bypass the start splash screen.
 
-```js
-export default class MircoGame {
-  constructor({ input, assets, libs }) {
-    this.input = input;
-    this.assets = assets;
-    this.libs = libs;
-    // default game state
-    this.state = {
-      gameOver: false,
-      won: false, // defaulting to false = lose by default, true = win by default
-    };
-  }
+The `manifest.json` file declares game metadata and registers assets and instructions
 
-  init(canvas) {
-    /** Initialize any custom game state */
-    const customState = {
-      /* 
-        athlete: {
-           x: canvas.width / 2
-           y: 100
-           isDown: true
-        }
-        situps: 0
-        ...
-        */
-    };
-    this.state = { ...this.state, ...customState };
-  }
-
-  update(dt) {
-    /** logic to update game state, called on each tick */
-
-    this.draw(); // call at the end of update
-  }
-
-  draw() {
-    /** render visuals based on game state */
-  }
-
-  end() {
-    // return true/false to indicate to engine whether game was won or lost
-    return this.state.won;
-  }
-}
-```
-
-`manifest.json`: declare game metadata and register assets and instructions
-
-IMPORTANT: **name of game must match yoru game dir name**
+IMPORTANT: **name of game must match your game dir name**
 
 ```json
 {
   "name": "situps",
   "assets": ["situp.png, fart.mp3"],
   "instruction": "Situp !",
-  "author": "Your Name"
+  "author": "Your Name",
+  "authorLink": "https://your-site-or-rc-directory-page.com (optional)"
 }
 ```
+
+### Game examples
+
+- [Situps](https://github.com/clairefro/miRCo-engine/tree/main/games/situps) (image, sound)
+- [Dodge Block](https://github.com/clairefro/miRCo-engine/tree/main/games/dodge-block) (image)
 
 ### Drawing
 
@@ -167,7 +138,8 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 
@@ -175,12 +147,12 @@ index.js
 
 ```js
 p5.image(
-  this.assets["situp.png"],
+  this.assets['situp.png'],
   0,
   0,
   state.athlete.width,
   state.athlete.height
-);
+)
 ```
 
 ### Sound
@@ -207,29 +179,67 @@ manifest.json
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
 ```
 
 index.js
 
 ```js
-// index.js
 // start sound
-this.libs.sound.play(this.assets["fart.mp3"]);
+this.libs.sound.play(this.assets['fart.mp3'])
 
 // stop sound
-this.libs.sound.stop(this.assets["fart.mp3"]);
+this.libs.sound.stop(this.assets['fart.mp3'])
 ```
 
-### Game examples
+### Inputs
 
-- [Situps](https://github.com/clairefro/miRCo-engine/tree/main/games/situps) (image, sound)
-- [Dodge Block](https://github.com/clairefro/miRCo-engine/tree/main/games/dodge-block) (image)
+Only 4 game controls are allowed: "left", "right", "up", "down"
+
+The player can control with arrow keys, WASD, or CandyCon gamepad controller.
+
+Currently pressed keys can be accessed from
+
+- `this.input.isPressedLeft()`
+- `this.input.isPressedRight()`
+- `this.input.isPressedUp()`
+- `this.input.isPressedDown()`
+
+```js
+update(dt) {
+  if (this.input.isPressedLeft()) {
+    // move left
+    this.state.player.x -= 0.2 * dt;
+  }
+  if (this.input.isPressedRight()) {
+    // move right
+    this.state.player.x += 0.2 * dt;
+  }
+  if (this.input.isPressedUp()) {
+    // move up
+    this.state.player.y += 0.2 * dt;
+  }
+  if (this.input.isPressedDown()) {
+    // move down
+    this.state.player.y -= 0.2 * dt;
+  }
+}
+
+```
+
+## Submitting games
+
+For now, just make a PR with your game (and other games) in the `/games` dir!
+
+Soon I will move game submission to a separate repo, and fetch all the games on launch.
 
 ## Roadmap
 
-- add dev mode for game makers to iterate on their own game
-- add physics + sound support
-- add transitions and win/lose tracking between games
-- logic to speed up?
+- add dev mode for game makers to iterate on their own game without moving games...
+- Typescript?
+- make console prettier (help wanted)
+- game PR based game submission system that autochecks for unique names, validated manifest.json etc
+- add "START" and "RESTART" buttons
+- add a storyline based on wins/losses?

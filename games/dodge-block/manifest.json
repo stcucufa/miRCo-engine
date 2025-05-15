@@ -1,6 +1,7 @@
 {
   "name": "dodge-block",
-  "assets": ["block.png", "player.png"],
-  "instruction": "Dodge!",
-  "author": "Claire Froelich"
+  "assets": ["block.png", "player.png", "alive.mp3", "ah.mp3"],
+  "instruction": "← Dodge! →",
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }

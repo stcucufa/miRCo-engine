@@ -2,5 +2,6 @@
   "name": "situps",
   "assets": ["situp.png", "fart.mp3"],
   "instruction": "Situp ↑ !",
-  "author": "Claire Froelich"
+  "author": "Claire Froelich",
+  "authorLink": "https://www.recurse.com/directory/6727-claire-froelich"
 }
