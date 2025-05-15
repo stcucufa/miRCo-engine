@@ -1,5 +1,5 @@
 {
-  "name": "you-wind-me-up",
+  "name": "wind-me-up",
   "assets": ["block.png", "player.png"],
   "instruction": "wind!",
   "author": "Andres"
