@@ -285,6 +285,23 @@ export class GameManager {
   toggleDirectory() {
     const isVisible = this.directoryOverlay.style.display === 'block'
     this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+
+    // disable body scroll when directory open
+    document.body.style.touchAction = isVisible ? 'auto' : 'none'
+    this.directoryOverlay.style.touchAction = 'pan-y'
+
+    // focus directory and first game on open
+    if (!isVisible) {
+      this.directoryOverlay.setAttribute('tabindex', '-1')
+      this.directoryOverlay.focus()
+
+      const firstGameLink = this.directoryOverlay.querySelector(
+        '.directory-game-entry a'
+      )
+      if (firstGameLink) {
+        firstGameLink.focus()
+      }
+    }
   }
 
   updateDirectory() {
