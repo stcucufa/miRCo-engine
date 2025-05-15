@@ -4,9 +4,6 @@ a cheap knock-off Warioware accepting Recuse Center community contributed microg
 
 <img width="660" alt="image" src="https://github.com/user-attachments/assets/65f8e99b-2941-4104-8f75-68607dc215cc" />
 
-<img width="759" alt="image" src="https://github.com/user-attachments/assets/bc10ccb1-0acb-48d3-89d1-ca0ad9abf8b3" />
-
-
 
 ## Running locally
 
