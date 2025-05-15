@@ -1,0 +1,11 @@
+{
+  "name": "win",
+  "assets": [
+    { "file": "whirring.wav", "volume": 1.2 },
+    { "file": "cheers.wav", "volume": 1.3 },
+    "penelope.png",
+    "not-dog.png"
+  ],
+  "instruction": "Win!",
+  "author": "Jack Ratner"
+}
