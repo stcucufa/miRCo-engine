@@ -4,7 +4,6 @@ a cheap knock-off Warioware accepting Recuse Center community contributed microg
 
 <img width="660" alt="image" src="https://github.com/user-attachments/assets/65f8e99b-2941-4104-8f75-68607dc215cc" />
 
-
 ## Running locally
 
 Pre-reqs: have `node` and `npm` installed

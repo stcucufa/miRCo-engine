@@ -70,6 +70,7 @@ export default class MircoGame {
   draw() {
     const state = this.state
     const p5 = this.libs.p5
+    p5.angleMode(p5.RADIANS)
 
     p5.background(255)
     p5.push()
