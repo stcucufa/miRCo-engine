@@ -214,54 +214,42 @@ export class GameManager {
     container.appendChild(this.scoreOverlay)
   }
 
-  listenForAnyKeyToStart() {
-    const handleInput = () => {
-      if (!this.gameLoopStarted) {
-        // remove all listeners
-        window.removeEventListener('click', handleInput)
-        window.removeEventListener('keydown', handleInput)
-        this.checkingGamepadInput = false
-        this.triggerGameplayStart()
-      }
-    }
-
-    // Add listeners
-    window.addEventListener('click', handleInput)
-    window.addEventListener('keydown', handleInput)
-
-    // Gamepad input check
-    this.checkingGamepadInput = true
-    // const checkGamepadInput = () => {
-    //   if (!this.gameLoopStarted && this.checkingGamepadInput) {
-    //     // check all connected gamepads
-    //     for (const gamepad of this.input.gamepads) {
-    //       if (!gamepad) continue
-
-    //       // check all buttons
-    //       if (gamepad.buttons.some((button) => button.pressed)) {
-    //         handleInput()
-    //         return
-    //       }
-
-    //       // check all axes
-    //       if (gamepad.axes.some((axis) => Math.abs(axis) > 0.5)) {
-    //         handleInput()
-    //         return
-    //       }
-    //     }
-    //     // continue checking if game hasn't started
-    //     requestAnimationFrame(checkGamepadInput)
-    //   }
-    // }
-
-    // Start checking for gamepad input
-    // checkGamepadInput()
-  }
-
-  triggerGameplayStart() {
+  triggerGameplayStart = () => {
     this.gameLoopStarted = true
     this.hideSplash()
     this.playNext()
+  }
+
+  handleSplashInteraction = () => {
+    if (!this.gameLoopStarted) {
+      // remove all listeners
+      window.removeEventListener('click', this.handleSplashInteraction)
+      window.removeEventListener('keydown', this.handleSplashInteraction)
+
+      // gamepad listerner will unlisten itself
+      this.triggerGameplayStart()
+    }
+  }
+
+  listenForAnyKeyToStart = () => {
+    // Add listeners
+    window.addEventListener('click', this.handleSplashInteraction)
+    window.addEventListener('keydown', this.handleSplashInteraction)
+
+    // Gamepad input check
+    this.waitForGamepadAnyInput()
+  }
+
+  waitForGamepadAnyInput = () => {
+    if (this.gameLoopStarted) return
+    let pressed = this.isAnyGamepadButtonPressed()
+
+    if (pressed) {
+      this.handleSplashInteraction()
+      return
+    }
+    // keep raffing...
+    requestAnimationFrame(this.waitForGamepadAnyInput)
   }
 
   showSplash() {
@@ -306,6 +294,7 @@ export class GameManager {
       this.hideSplash()
     } else {
       // add event lister for handling splash
+      console.log('INIT() this.gameplaystared', this.gameLoopStarted)
       this.listenForAnyKeyToStart()
     }
     await this.loadGameManifests()
@@ -346,6 +335,7 @@ export class GameManager {
     }
     return false
   }
+
   isAnyGamepadButtonPressed() {
     if (!this.input.hasGamepad()) {
       return false
@@ -355,7 +345,7 @@ export class GameManager {
 
       for (let i = 0; i <= gamepad.buttons.length; i++) {
         // check if nay button is pressed
-        if (gamepad.buttons[x].pressed) {
+        if (gamepad.buttons[i].pressed) {
           return true
         }
       }
