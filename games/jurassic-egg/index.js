@@ -40,6 +40,8 @@ export default class MircoGame {
 
     /** do stuff with game state here - check for winning and losing! */
     if (anyKeyPressed && !state.keyPressed) {
+      this.input.gamepadPulse()
+
       state.keyPressed = true;
       state.cracks++;
       if (state.cracks > state.maxCracks) {
