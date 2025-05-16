@@ -62,7 +62,7 @@ a:hover {
 
 /* RC logo wrapper*/
 #game-container-wrapper {
-  transform: scale(0.9);
+  transform: scale(0.8);
   position: relative;
   background-image: url('./recurse.svg');
   background-position: center;

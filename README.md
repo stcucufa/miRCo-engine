@@ -247,3 +247,7 @@ Soon I will move game submission to a separate repo, and fetch all the games on 
 - game PR based game submission system that autochecks for unique names, validated manifest.json etc
 - add "START" and "RESTART" buttons
 - add a storyline based on wins/losses?
+
+## Deployment (for Claire :P )
+
+`disco deploy --project mirco`
