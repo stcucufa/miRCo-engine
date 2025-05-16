@@ -333,7 +333,7 @@ export class GameManager {
     if (!this.input.gamepad.hasGamepad()) {
       return false
     }
-    for (const gamepad of this.input.gamepads) {
+    for (const gamepad of this.input.gamepad.gamepads) {
       if (!gamepad) continue
 
       var mappings
