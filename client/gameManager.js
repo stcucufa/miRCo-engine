@@ -2,7 +2,11 @@ const DEFAULT_INSTRUCTION = 'Ready?'
 
 import { Howl } from 'howler'
 import p5 from 'p5'
-import { BUTTON_NAMES, BUTTON_MAPPINGS } from './gamepadManager.js'
+import {
+  GamepadManager,
+  BUTTON_NAMES,
+  BUTTON_MAPPINGS,
+} from './gamepadManager.js'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
@@ -61,83 +65,21 @@ export class GameManager {
     this.showingInstruction = false
     this.currentInstruction = ''
 
-    // apply shared default settings to p5
-    // this.resetP5Instance()
-
     this.input = {
       keys: new Set(),
-      isPressedLeft: () => {
-        if (this.isDirectionPressed('left')) {
-          return true
-        }
-
-        if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_LEFT)) {
-          return true
-        }
-        return false
-      },
-      isPressedRight: () => {
-        if (this.isDirectionPressed('right')) {
-          return true
-        }
-
-        if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_RIGHT)) {
-          return true
-        }
-        return false
-      },
-      isPressedUp: () => {
-        if (this.isDirectionPressed('up')) {
-          return true
-        }
-        if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_UP)) {
-          return true
-        }
-        return false
-      },
-      isPressedDown: () => {
-        if (this.isDirectionPressed('down')) {
-          return true
-        }
-
-        if (this.isGamepadButtonPressed(BUTTON_NAMES.DPAD_DOWN)) {
-          return true
-        }
-        return false
-      },
-
-      // gamepad support
-      gamepads: [],
-      hasGamepad: () => {
-        if ((!'getGamepads') in navigator) {
-          return false
-        }
-        // Check if any gamepad is connected
-        if (this.input.gamepads === undefined || this.input.gamepads === null) {
-          return false
-        }
-        return this.input.gamepads.length > 0
-      },
-      updateGamepadState: () => {
-        const gamepads = navigator.getGamepads()
-        for (const gamepad of gamepads) {
-          if (gamepad) {
-            this.input.gamepads[gamepad.index] = gamepad
-          }
-        }
-        requestAnimationFrame(this.input.updateGamepadState)
-      },
-      gamepadPulse: () => {
-        for (const gamepad of this.input.gamepads) {
-          if (!gamepad) continue
-          gamepad.vibrationActuator.playEffect("dual-rumble", {
-            startDelay: 0,
-            duration: 100,
-            weakMagnitude: 1.0,
-            strongMagnitude: 1.0,
-          })
-        }
-      },
+      gamepad: new GamepadManager(),
+      isPressedLeft: () =>
+        this.isDirectionPressed('left') ||
+        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_LEFT),
+      isPressedRight: () =>
+        this.isDirectionPressed('right') ||
+        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_RIGHT),
+      isPressedUp: () =>
+        this.isDirectionPressed('up') ||
+        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_UP),
+      isPressedDown: () =>
+        this.isDirectionPressed('down') ||
+        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_DOWN),
     }
 
     this.state = {
@@ -190,7 +132,7 @@ export class GameManager {
       )
 
       // Contiously poll for gamepad state
-      this.input.updateGamepadState()
+      this.input.gamepad.updateGamepadState()
     }
   }
 
@@ -275,13 +217,10 @@ export class GameManager {
 
   waitForGamepadAnyInput = () => {
     if (this.gameLoopStarted) return
-    let pressed = this.isAnyGamepadButtonPressed()
-
-    if (pressed) {
+    if (this.isAnyGamepadButtonPressed()) {
       this.handleSplashInteraction()
       return
     }
-    // keep raffing...
     requestAnimationFrame(this.waitForGamepadAnyInput)
   }
 
@@ -443,20 +382,7 @@ export class GameManager {
   }
 
   isAnyGamepadButtonPressed() {
-    if (!this.input.hasGamepad()) {
-      return false
-    }
-    for (const gamepad of this.input.gamepads) {
-      if (!gamepad) continue
-
-      for (let i = 0; i <= gamepad.buttons.length; i++) {
-        // check if nay button is pressed
-        if (gamepad.buttons[i].pressed) {
-          return true
-        }
-      }
-    }
-    return false
+    return this.input.gamepad.isAnyButtonPressed()
   }
 
   async loadGameManifests() {
@@ -575,7 +501,7 @@ export class GameManager {
     const shuffled = [...arr]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
   }
@@ -764,10 +690,11 @@ export class GameManager {
     if (!manifest) {
       return `game by ${DEFAULT_AUTHOR_NAME}`
     }
-    return `${manifest?.name} by ${manifest?.authorLink
-      ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
-      : manifest?.author || DEFAULT_AUTHOR_NAME
-      }`
+    return `${manifest?.name} by ${
+      manifest?.authorLink
+        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+        : manifest?.author || DEFAULT_AUTHOR_NAME
+    }`
   }
 
   resetP5Instance() {
