@@ -1,19 +1,30 @@
 import express from 'express'
 import path from 'path'
+import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
 
 const app = express()
 const PORT = 3001
 
-// TODO: make the game path dynamic
-const MICROGAMES_DIR = path.resolve('./games')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// TODO: make the game path dynamic - or consider fetching games from remote
+const MICROGAMES_DIR = path.resolve(__dirname, './games')
 
 // serve game assets
 app.use('/games', express.static(MICROGAMES_DIR))
 
-// only serve client from backend in prod
+// only serve client from backend in prod (use vite dev server in development)
 if (process.env.NODE_ENV === 'production') {
-  app.use('/', express.static('./client'))
+  const distPath = path.resolve(__dirname, 'dist')
+  app.use(express.static(distPath)) // serve dist bundle at root
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html')) // also serve index.html for all unmatched routes
+  })
+} else {
+  console.log('Running in development mode')
 }
 
 app.get('/api/games', async (req, res) => {

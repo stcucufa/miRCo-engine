@@ -476,7 +476,11 @@ export class GameManager {
         console.log('Manifests queue empty, resetting manifests')
         this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
         this.state.round++
-        // console.log('Current round:', this.state.round)
+        // exit loop if no games are found
+        if (this.gameManifestsQueue.length === 0) {
+          console.error('No games left to queue. Stopping buffer refill.')
+          return
+        }
       }
 
       const nextManifest = this.gameManifestsQueue.shift()
