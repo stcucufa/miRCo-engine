@@ -99,7 +99,6 @@ export class GameManager {
       window.addEventListener(
         'gamepadconnected',
         (e) => {
-          //this.gamepadHandler(e, true);
           console.log(
             'Gamepad connected at index %d: %s. %d buttons, %d axes.',
             e.gamepad.index,
@@ -109,7 +108,6 @@ export class GameManager {
           )
           const gamepad = e.gamepad
           console.log('gamepad', gamepad)
-          console.log('this.gamepads', this.input.gamepads)
           this.input.gamepads[gamepad.index] = gamepad
         },
         false
@@ -118,7 +116,6 @@ export class GameManager {
       window.addEventListener(
         'gamepaddisconnected',
         (e) => {
-          //this.gamepadHandler(e, false);
           console.log(
             'Gamepad disconnected from index %d: %s',
             e.gamepad.index,
@@ -303,31 +300,6 @@ export class GameManager {
   `
   }
 
-  async gamepadHandler(event, connected) {
-    const gamepad = event.gamepad
-    // Note:
-    //gamepad === navigator.getGamepads()[gamepad.index]
-
-    if (connected) {
-      console.log(
-        'Gamepad connected at index %d: %s. %d buttons, %d axes.',
-        event.gamepad.index,
-        event.gamepad.id,
-        event.gamepad.buttons.length,
-        event.gamepad.axes.length
-      )
-      this.gamepads[gamepad.index] = gamepad
-    } else {
-      console.log(
-        'Gamepad disconnected from index %d: %s',
-        e.gamepad.index,
-        e.gamepad.id
-      )
-
-      delete this.gamepads[gamepad.index]
-    }
-  }
-
   async init() {
     if (this.options.round) {
       this.state.round = parseInt(this.options.round)
@@ -358,7 +330,7 @@ export class GameManager {
 
   // TODO these gamepad functions need to accouunt for the actual gamepad in use, maybe by name or type?
   isGamepadButtonPressed(button_name) {
-    if (!this.input.hasGamepad()) {
+    if (!this.input.gamepad.hasGamepad()) {
       return false
     }
     for (const gamepad of this.input.gamepads) {
