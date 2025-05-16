@@ -8,6 +8,8 @@ https://mirco.rcdis.co
 
 <img width="660" alt="image" src="https://github.com/user-attachments/assets/65f8e99b-2941-4104-8f75-68607dc215cc" />
 
+Engine built by Claire F. (SP2'25), Jack R. (SP2'25), Rippy (mini-6'19), Cyrene Z. (SP2'25) during NGW'25
+
 ## Running locally
 
 Pre-reqs: have `node` and `npm` installed
