@@ -5,7 +5,6 @@ import { resolve } from 'path'
 export default defineConfig({
   root: './client',
   //   base: "/",
-
   build: {
     outDir: resolve(__dirname, 'dist'),
     emptyOutDir: true,

@@ -11,7 +11,10 @@ const MICROGAMES_DIR = path.resolve('./games')
 // serve game assets
 app.use('/games', express.static(MICROGAMES_DIR))
 
-// app.use("/", express.static("./client"));
+// only serve client from backend in prod
+if (process.env.NODE_ENV === 'production') {
+  app.use('/', express.static('./client'))
+}
 
 app.get('/api/games', async (req, res) => {
   try {
