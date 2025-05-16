@@ -127,6 +127,17 @@ export class GameManager {
         }
         requestAnimationFrame(this.input.updateGamepadState)
       },
+      gamepadPulse: () => {
+        for (const gamepad of this.input.gamepads) {
+          if (!gamepad) continue
+          gamepad.vibrationActuator.playEffect("dual-rumble", {
+            startDelay: 0,
+            duration: 100,
+            weakMagnitude: 1.0,
+            strongMagnitude: 1.0,
+          })
+        }
+      },
     }
 
     this.state = {
@@ -447,6 +458,7 @@ export class GameManager {
     }
     return false
   }
+
   async loadGameManifests() {
     const res = await fetch('/api/games')
     let manifests = await res.json()
@@ -563,7 +575,7 @@ export class GameManager {
     const shuffled = [...arr]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
   }
@@ -752,11 +764,10 @@ export class GameManager {
     if (!manifest) {
       return `game by ${DEFAULT_AUTHOR_NAME}`
     }
-    return `${manifest?.name} by ${
-      manifest?.authorLink
-        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
-        : manifest?.author || DEFAULT_AUTHOR_NAME
-    }`
+    return `${manifest?.name} by ${manifest?.authorLink
+      ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+      : manifest?.author || DEFAULT_AUTHOR_NAME
+      }`
   }
 
   resetP5Instance() {

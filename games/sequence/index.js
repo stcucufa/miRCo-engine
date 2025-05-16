@@ -5,6 +5,13 @@ export default class MircoGame {
     this.libs = libs
     this.mirco = mirco
 
+    this.lookup = {
+      '⬆️': this.input.isPressedUp,
+      '⬇️': this.input.isPressedDown,
+      '⬅️': this.input.isPressedLeft,
+      '➡️': this.input.isPressedRight,
+    }
+
     this.state = {
       // defaults
       gameOver: false,
@@ -54,16 +61,7 @@ export default class MircoGame {
     }
 
     var target = state.sequence[state.number]
-    var targetFunction = null
-    if (target == "⬆️") {
-      targetFunction = this.input.isPressedUp
-    } else if (target == "⬇️") {
-      targetFunction = this.input.isPressedDown
-    } else if (target == "⬅️") {
-      targetFunction = this.input.isPressedLeft
-    } else if (target == "➡️") {
-      targetFunction = this.input.isPressedRight
-    }
+    var targetFunction = this.lookup[target]
 
     var targetPressed = targetFunction()
     console.log("target:", target, "targetPressed:", targetPressed, "lastKeyState:", state.lastKeyState)
@@ -79,6 +77,7 @@ export default class MircoGame {
       }
     }
     if (targetPressed === true && state.lastKeyState === false) {
+      this.input.gamepadPulse()
       state.lastKeyState = true
       state.lastChangeTime = Date.now()
       return
@@ -87,7 +86,7 @@ export default class MircoGame {
     var funcs = [this.input.isPressedLeft, this.input.isPressedRight, this.input.isPressedUp, this.input.isPressedDown]
     var i = funcs.indexOf(targetFunction)
     funcs.splice(i, 1)
-    console.log("funcs: ", funcs)
+
     for (var j = 0; j < funcs.length; j++) {
       if (funcs[j]()) {
         console.log("Wrong button pressed")
@@ -107,7 +106,7 @@ export default class MircoGame {
     const state = this.state
     const p5 = this.libs.p5
 
-    console.log("state.gameOver: ", state.gameOver)
+    // console.log("state.gameOver: ", state.gameOver)
 
     p5.background(255)
 
