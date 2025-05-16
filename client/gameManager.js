@@ -450,7 +450,6 @@ export class GameManager {
   async loadGameManifests() {
     const res = await fetch('/api/games')
     let manifests = await res.json()
-    console.log({ manifests })
     manifests = [
       ...manifests.filter((m) =>
         this.options.game ? this.options.game === m.name : true
@@ -463,7 +462,6 @@ export class GameManager {
     this.gameManifestsQueue = this.shuffleArray([...manifests])
 
     console.log('Available pending games::', this.gameManifestsQueue)
-    // Initial fill of buffer
 
     // expose all games in directory
     this.updateDirectory()
