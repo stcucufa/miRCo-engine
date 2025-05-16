@@ -1,6 +1,10 @@
 ## miRCo - micro game engine for RC
 
+<a href='http://www.recurse.com' title='Made with love at the Recurse Center'><img src='https://cloud.githubusercontent.com/assets/2883345/11325206/336ea5f4-9150-11e5-9e90-d86ad31993d8.png' height='20px'/></a>
+
 a cheap knock-off Warioware accepting Recuse Center community contributed microgames
+
+https://mirco.rcdis.co
 
 <img width="660" alt="image" src="https://github.com/user-attachments/assets/65f8e99b-2941-4104-8f75-68607dc215cc" />
 

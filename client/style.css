@@ -50,16 +50,19 @@ a:hover {
   cursor: pointer;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .page-container {
   max-width: max-content;
+  padding-top: 3rem;
+  padding-bottom: 4rem;
 }
-#contribute-link {
-  text-align: center;
-  margin-top: 2rem;
-}
+
 /* RC logo wrapper*/
 #game-container-wrapper {
-  transform: scale(0.8);
+  transform: scale(0.9);
   position: relative;
   background-image: url('./recurse.svg');
   background-position: center;
