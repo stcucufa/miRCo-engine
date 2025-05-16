@@ -29,11 +29,17 @@
 }
 
 body {
+  font: var(--font-family);
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+}
+
+p,
+a {
+  font-family: var(--font-family);
 }
 
 a {
@@ -44,10 +50,16 @@ a:hover {
   cursor: pointer;
 }
 
+.page-container {
+  max-width: max-content;
+}
+#contribute-link {
+  text-align: center;
+  margin-top: 2rem;
+}
 /* RC logo wrapper*/
 #game-container-wrapper {
   transform: scale(0.8);
-  margin-top: 2rem;
   position: relative;
   background-image: url('./recurse.svg');
   background-position: center;
