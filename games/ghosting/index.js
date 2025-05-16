@@ -47,7 +47,7 @@ export default class MircoGame {
     this.draw()
   }
 
-  handleKeyPress(state) {
+  handleKeyPress() {
     const state = this.state
 
     if (state.currentAvatar && !state.currentAvatar.hasBeenJudged) {
