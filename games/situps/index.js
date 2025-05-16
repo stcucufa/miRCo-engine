@@ -44,7 +44,7 @@ export default class MircoGame {
 
     // Only count a sit-up when transitioning from down to up
     if (upPressed && !state.lastKeyState && state.athlete.isDown) {
-      this.input.gamepadPulse()
+      this.input.gamepad.pulse()
 
       state.athlete.sitUpCount++
       state.athlete.isDown = false
