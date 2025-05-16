@@ -450,6 +450,7 @@ export class GameManager {
   async loadGameManifests() {
     const res = await fetch('/api/games')
     let manifests = await res.json()
+    console.log({ manifests })
     manifests = [
       ...manifests.filter((m) =>
         this.options.game ? this.options.game === m.name : true
