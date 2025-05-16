@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "serve": "node server.js",
+    "start": "npm run build && npm run serve",
     "format": "prettier . --write"
   },
   "dependencies": {
