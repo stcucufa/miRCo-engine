@@ -46,11 +46,9 @@ Games are just directories with a mandatory `index.js`and `manifest.json`, and a
     manifest.json
 ```
 
-Game are currently served out of `/games` dir.
+To add a game, fork this repo and add your game in `/games` dir, then make a PR. (tip: Use the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) and copy the `your-game` boiler into `/games` to get quick-started.)
 
-Copy the [game template](https://github.com/clairefro/miRCo-engine/tree/main/game-template) `your-game` into `/games` in local development, which has boiler templates.
-
-Run a special game-dev server with `npm run game-dev --game=your-game` to iterate on your game only and bypass the start splash screen.
+Run a game-dev server with `npm run game-dev --game=your-game` to iterate on your game only and bypass the start splash screen.
 
 The `manifest.json` file declares game metadata and registers assets and instructions
 
