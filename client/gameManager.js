@@ -509,7 +509,6 @@ export class GameManager {
   endGame(won) {
     this.isRunning = false
     clearTimeout(this.gameTimer)
-    // this.resetP5Instance()
     if (this.frameId) {
       cancelAnimationFrame(this.frameId)
       this.frameId = null
@@ -667,26 +666,5 @@ export class GameManager {
         ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
         : manifest?.author || DEFAULT_AUTHOR_NAME
     }`
-  }
-
-  resetP5Instance() {
-    const p = this.libs.p5
-    p.draw = () => {
-      p.clear()
-      const s = P5_DEFAULTS.settings
-      p.background(s.background)
-      p.imageMode(p[s.imageMode])
-      p.rectMode(p[s.rectMode])
-      p.angleMode(p[s.angleMode])
-      p.colorMode(p[s.colorMode])
-      p.textAlign(p[s.textAlign[0]], p[s.textAlign[1]])
-      p.textSize(s.textSize)
-      p.resetMatrix()
-
-      p.noLoop() // managed by game manager
-    }
-
-    // force a single draw call
-    p.redraw()
   }
 }
