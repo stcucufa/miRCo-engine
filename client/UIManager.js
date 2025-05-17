@@ -32,17 +32,47 @@ export class UIManager {
       `
     )
     // TODO: ADD DIRECTORY OVERLAY
-    // this.directoryButton = document.createElement('button')
-    // this.directoryButton.className = 'directory-button'
-    // this.directoryButton.textContent = 'All Games'
-    // this.directoryButton.onclick = () => this.toggleDirectory()
-    // container.appendChild(this.directoryButton)
+    this.directoryButton = document.createElement('button')
+    this.directoryButton.className = 'directory-button'
+    this.directoryButton.textContent = 'All Games'
+    this.directoryButton.onclick = () => this.toggleDirectory()
+    container.appendChild(this.directoryButton)
 
     // this.directoryOverlay = document.createElement('div')
     // this.directoryOverlay.className = 'directory-overlay'
     // this.directoryOverlay.style.display = 'none'
     // container.appendChild(this.directoryOverlay)
+
     this.directoryOverlay = this.createOverlay('directory-overlay')
+
+    //     )
+    //     .join('')
+
+    //   // add extra backlink if game param exists (currently loading only one game)
+    //   const backLink = this.options.game
+    //     ? `
+    //   <li class="directory-game-entry directory-back-entry">
+    //       <a href="/"
+    //          class="directory-game-entry"
+    //          tabindex="0"
+    //          role="button">
+    //           <span class="directory-game-name">< Back to all games</span>
+    //       </a>
+    //   </li>
+    // `
+    //     : ''
+
+    //   this.directoryOverlay.innerHTML = `
+    // <div class="directory-header">
+    //     <h2>Available Games (${this.allGameManifests.length})</h2>
+    //     <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
+    // </div>
+    // <ul class="directory-games-list">
+    //     ${gamesList}
+    //     ${backLink}
+    // </ul>
+    // `
+    // }
   }
 
   createOverlay(className, innerHTML = '') {
@@ -61,6 +91,27 @@ export class UIManager {
   hideSplash() {
     console.log('hiding splash')
     console.log(this.splashOverlay)
-    this.splashOverlay.style.display = 'none !important'
+    this.splashOverlay.style.display = 'none'
+  }
+
+  toggleDirectory() {
+    const isVisible = this.directoryOverlay.style.display === 'block'
+    this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+
+    // disable body scroll when directory open
+    document.body.style.touchAction = isVisible ? 'auto' : 'none'
+
+    // focus directory and first game on open
+    if (!isVisible) {
+      this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
+
+      // Focus on directory after a brief delay to ensure DOM is ready
+      setTimeout(() => {
+        const dir = this.directoryOverlay.querySelector('.directory-overlay')
+        if (dir) {
+          dir.focus()
+        }
+      }, 0)
+    }
   }
 }

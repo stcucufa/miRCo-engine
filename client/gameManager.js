@@ -75,7 +75,7 @@ export class GameManager {
       losses: 0,
     }
 
-    this.buildOverlays(this.container)
+    this.ui.buildOverlays(this.container)
 
     // Bind input handlers
     window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
@@ -170,76 +170,27 @@ export class GameManager {
     requestAnimationFrame(this.waitForGamepadAnyInput)
   }
 
-  toggleDirectory() {
-    const isVisible = this.directoryOverlay.style.display === 'block'
-    this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+  // toggleDirectory() {
+  //   const isVisible = this.directoryOverlay.style.display === 'block'
+  //   this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
 
-    // disable body scroll when directory open
-    document.body.style.touchAction = isVisible ? 'auto' : 'none'
-    this.directoryOverlay.style.touchAction = 'pan-y'
+  //   // disable body scroll when directory open
+  //   document.body.style.touchAction = isVisible ? 'auto' : 'none'
+  //   this.directoryOverlay.style.touchAction = 'pan-y'
 
-    // focus directory and first game on open
-    if (!isVisible) {
-      this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
+  //   // focus directory and first game on open
+  //   if (!isVisible) {
+  //     this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
 
-      // Focus on directory after a brief delay to ensure DOM is ready
-      setTimeout(() => {
-        const dir = this.directoryOverlay.querySelector('.directory-overlay')
-        if (dir) {
-          dir.focus()
-        }
-      }, 0)
-    }
-  }
-
-  updateDirectory() {
-    // sort games alphabetically by name
-    const sortedGames = [...this.allGameManifests].sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )
-
-    const gamesList = sortedGames
-      .map(
-        (game) => `
-          <li class="directory-game-entry">
-              <a href="?game=${game.name}" 
-                   class="directory-game-entry" 
-                   tabindex="0"
-                   data-game="${game.name}"
-                   role="button">
-                    <span class="directory-game-name">${game.name}</span>
-                    <span class="directory-game-author">by ${game.author || DEFAULT_AUTHOR_NAME}</span>
-                </a>
-          </li>
-      `
-      )
-      .join('')
-
-    // add extra backlink if game param exists (currently loading only one game)
-    const backLink = this.options.game
-      ? `
-    <li class="directory-game-entry directory-back-entry">
-        <a href="/" 
-           class="directory-game-entry" 
-           tabindex="0"
-           role="button">
-            <span class="directory-game-name">< Back to all games</span>
-        </a>
-    </li>
-  `
-      : ''
-
-    this.directoryOverlay.innerHTML = `
-      <div class="directory-header">
-          <h2>Available Games (${this.allGameManifests.length})</h2>
-          <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
-      </div>
-      <ul class="directory-games-list">
-          ${gamesList}
-          ${backLink}
-      </ul>
-  `
-  }
+  //     // Focus on directory after a brief delay to ensure DOM is ready
+  //     setTimeout(() => {
+  //       const dir = this.directoryOverlay.querySelector('.directory-overlay')
+  //       if (dir) {
+  //         dir.focus()
+  //       }
+  //     }, 0)
+  //   }
+  // }
 
   async init() {
     if (this.options.round) {
@@ -290,7 +241,7 @@ export class GameManager {
     console.log('Available pending games::', this.gameManifestsQueue)
 
     // expose all games in directory
-    this.updateDirectory()
+    // this.updateDirectory()
 
     await this.refillBuffer()
   }
@@ -370,19 +321,19 @@ export class GameManager {
   }
 
   showInstruction(instruction, duration = 1000) {
-    this.showingInstruction = true
-    this.instructionOverlay.textContent = instruction
-    this.instructionOverlay.classList.add('visible')
+    this.ui.showingInstruction = true
+    this.ui.instructionOverlay.textContent = instruction
+    this.ui.instructionOverlay.classList.add('visible')
 
     setTimeout(() => {
-      this.showingInstruction = false
-      this.instructionOverlay.classList.remove('visible')
+      this.ui.showingInstruction = false
+      this.ui.instructionOverlay.classList.remove('visible')
     }, duration)
   }
 
   hideInstruction() {
-    this.showingInstruction = false
-    this.instructionOverlay.classList.remove('visible')
+    this.ui.showingInstruction = false
+    this.ui.instructionOverlay.classList.remove('visible')
   }
 
   shuffleArray(arr) {
