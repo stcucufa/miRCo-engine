@@ -1,7 +1,6 @@
 export class UIManager {
   constructor(container) {
     this.container = container
-    this.buildOverlays()
   }
 
   buildOverlays() {
@@ -16,13 +15,16 @@ export class UIManager {
     )
 
     this.instructionOverlay = this.createOverlay('instruction-overlay')
+
     this.authorOverlay = this.createOverlay('author-overlay')
-    this.timerOverlay = this.createOverlay(
-      'timer-overlay',
-      `
-        <div class="timer-progress"></div>
-      `
-    )
+
+    this.timerOverlay = document.createElement('div')
+    this.timerOverlay.className = 'timer-overlay'
+    this.timerProgress = document.createElement('div')
+    this.timerProgress.className = 'timer-progress'
+    this.timerOverlay.appendChild(this.timerProgress)
+    this.container.appendChild(this.timerOverlay)
+
     this.scoreOverlay = this.createOverlay(
       'score-overlay',
       `
@@ -36,7 +38,7 @@ export class UIManager {
     this.directoryButton.className = 'directory-button'
     this.directoryButton.textContent = 'All Games'
     this.directoryButton.onclick = () => this.toggleDirectory()
-    container.appendChild(this.directoryButton)
+    this.container.appendChild(this.directoryButton)
 
     // this.directoryOverlay = document.createElement('div')
     // this.directoryOverlay.className = 'directory-overlay'
@@ -115,3 +117,25 @@ export class UIManager {
     }
   }
 }
+
+// toggleDirectory() {
+//   const isVisible = this.directoryOverlay.style.display === 'block'
+//   this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
+
+//   // disable body scroll when directory open
+//   document.body.style.touchAction = isVisible ? 'auto' : 'none'
+//   this.directoryOverlay.style.touchAction = 'pan-y'
+
+//   // focus directory and first game on open
+//   if (!isVisible) {
+//     this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
+
+//     // Focus on directory after a brief delay to ensure DOM is ready
+//     setTimeout(() => {
+//       const dir = this.directoryOverlay.querySelector('.directory-overlay')
+//       if (dir) {
+//         dir.focus()
+//       }
+//     }, 0)
+//   }
+// }

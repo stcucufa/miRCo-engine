@@ -3,7 +3,6 @@ const DEFAULT_INSTRUCTION = 'Ready?'
 import { Howl } from 'howler'
 import p5 from 'p5'
 
-import { GamepadManager, BUTTON_NAMES } from './GamepadManager.js'
 import { InputManager } from './InputManager.js'
 import { GameLoader } from './GameLoader.js'
 import { UIManager } from './UIManager.js'
@@ -21,9 +20,8 @@ export class GameManager {
     this.gameLoopStarted = false
 
     this.input = new InputManager()
-
     this.gameLoader = new GameLoader()
-    this.ui = new UIManager(container)
+    this.ui = new UIManager(this.container)
 
     this.libs = {
       sound: {
@@ -52,23 +50,6 @@ export class GameManager {
     this.showingInstruction = false
     this.currentInstruction = ''
 
-    // this.input = {
-    //   keys: new Set(),
-    //   gamepad: new GamepadManager(),
-    //   isPressedLeft: () =>
-    //     this.isDirectionPressed('left') ||
-    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_LEFT),
-    //   isPressedRight: () =>
-    //     this.isDirectionPressed('right') ||
-    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_RIGHT),
-    //   isPressedUp: () =>
-    //     this.isDirectionPressed('up') ||
-    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_UP),
-    //   isPressedDown: () =>
-    //     this.isDirectionPressed('down') ||
-    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_DOWN),
-    // }
-
     this.mirco = {
       round: 0,
       wins: 0,
@@ -82,60 +63,8 @@ export class GameManager {
     window.addEventListener('keyup', (e) => this.input.keys.delete(e.key))
   }
 
-  buildOverlays(container) {
-    // Splash overlay
-    this.splashOverlay = document.createElement('div')
-    this.splashOverlay.className = 'start-splash-overlay'
-    this.splashOverlay.innerHTML = `
-        <div class="splash-content">
-          <h1>miRCo Engine</h1>
-          <button class="start-button">START</button>
-        </div>
-      `
-    container.appendChild(this.splashOverlay)
-
-    // Instructions overlay
-    this.instructionOverlay = document.createElement('div')
-    this.instructionOverlay.className = 'instruction-overlay'
-    container.appendChild(this.instructionOverlay)
-
-    // Author info
-    this.authorOverlay = document.createElement('div')
-    this.authorOverlay.className = 'author-overlay'
-    container.appendChild(this.authorOverlay)
-
-    // Timer
-    this.timerOverlay = document.createElement('div')
-    this.timerOverlay.className = 'timer-overlay'
-    this.timerProgress = document.createElement('div')
-    this.timerProgress.className = 'timer-progress'
-    this.timerOverlay.appendChild(this.timerProgress)
-    container.appendChild(this.timerOverlay)
-
-    // Scoreboard
-    this.scoreOverlay = document.createElement('div')
-    this.scoreOverlay.className = 'score-overlay'
-    this.scoreOverlay.innerHTML = `
-       <span class="round">Round: 0</span>
-       <span class="wins">Wins: 0</span>
-       <span class="losses">Losses: 0</span>
-     `
-    container.appendChild(this.scoreOverlay)
-
-    // Directory
-    this.directoryButton = document.createElement('button')
-    this.directoryButton.className = 'directory-button'
-    this.directoryButton.textContent = 'All Games'
-    this.directoryButton.onclick = () => this.toggleDirectory()
-    container.appendChild(this.directoryButton)
-
-    this.directoryOverlay = document.createElement('div')
-    this.directoryOverlay.className = 'directory-overlay'
-    this.directoryOverlay.style.display = 'none'
-    container.appendChild(this.directoryOverlay)
-  }
-
   triggerGameplayStart = () => {
+    console.log('triggered')
     this.gameLoopStarted = true
     this.ui.hideSplash()
     this.playNext()
@@ -147,7 +76,7 @@ export class GameManager {
       window.removeEventListener('click', this.handleSplashInteraction)
       window.removeEventListener('keydown', this.handleSplashInteraction)
 
-      // gamepad listerner will unlisten itself
+      // gamepad listener will unlisten itself
       this.triggerGameplayStart()
     }
   }
@@ -170,28 +99,6 @@ export class GameManager {
     requestAnimationFrame(this.waitForGamepadAnyInput)
   }
 
-  // toggleDirectory() {
-  //   const isVisible = this.directoryOverlay.style.display === 'block'
-  //   this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
-
-  //   // disable body scroll when directory open
-  //   document.body.style.touchAction = isVisible ? 'auto' : 'none'
-  //   this.directoryOverlay.style.touchAction = 'pan-y'
-
-  //   // focus directory and first game on open
-  //   if (!isVisible) {
-  //     this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
-
-  //     // Focus on directory after a brief delay to ensure DOM is ready
-  //     setTimeout(() => {
-  //       const dir = this.directoryOverlay.querySelector('.directory-overlay')
-  //       if (dir) {
-  //         dir.focus()
-  //       }
-  //     }, 0)
-  //   }
-  // }
-
   async init() {
     if (this.options.round) {
       this.mirco.round = parseInt(this.options.round)
@@ -212,13 +119,6 @@ export class GameManager {
       this.triggerGameplayStart()
     }
   }
-
-  // isDirectionPressed(direction) {
-  //   const validKeys = KEY_MAPPINGS[direction]
-  //   if (!validKeys) return false
-
-  //   return validKeys.some((key) => this.input.keys.has(key))
-  // }
 
   isAnyGamepadButtonPressed() {
     return this.input.gamepad.isAnyButtonPressed()
@@ -303,7 +203,7 @@ export class GameManager {
 
     // Show instruction first
     this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
-    this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
+    this.ui.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
 
     this.currentGame.init(this.canvas)
 
@@ -409,11 +309,11 @@ export class GameManager {
     this.resetTimer()
 
     // Force reflow to ensure transition reset takes effect
-    this.timerProgress.offsetHeight
+    this.ui.timerProgress.offsetHeight
 
     // Start timer animation
-    this.timerProgress.style.transition = `width ${this.GAME_DURATION}ms linear`
-    this.timerProgress.style.width = '0%'
+    this.ui.timerProgress.style.transition = `width ${this.GAME_DURATION}ms linear`
+    this.ui.timerProgress.style.width = '0%'
   }
 
   updateScore(won) {
@@ -422,17 +322,17 @@ export class GameManager {
     } else {
       this.mirco.losses++
     }
-    this.scoreOverlay.querySelector('.round').textContent =
+    this.ui.scoreOverlay.querySelector('.round').textContent =
       `Round: ${this.mirco.round}`
-    this.scoreOverlay.querySelector('.wins').textContent =
+    this.ui.scoreOverlay.querySelector('.wins').textContent =
       `Wins: ${this.mirco.wins}`
-    this.scoreOverlay.querySelector('.losses').textContent =
+    this.ui.scoreOverlay.querySelector('.losses').textContent =
       `Losses: ${this.mirco.losses}`
   }
 
   resetTimer() {
-    this.timerProgress.style.transition = 'none'
-    this.timerProgress.style.width = '100%'
+    this.ui.timerProgress.style.transition = 'none'
+    this.ui.timerProgress.style.width = '100%'
   }
 
   async bootstrapP5(manifest) {
