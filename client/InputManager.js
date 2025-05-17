@@ -12,6 +12,14 @@ export class InputManager {
     this.keys = new Set()
     this.gamepad = new GamepadManager()
 
+    this.isPressedLeft = this.isPressedLeft.bind(this)
+    this.isPressedRight = this.isPressedRight.bind(this)
+    this.isPressedUp = this.isPressedUp.bind(this)
+    this.isPressedDown = this.isPressedDown.bind(this)
+    this.isDirectionPressed = this.isDirectionPressed.bind(this)
+    this.isGamepadButtonPressed = this.isGamepadButtonPressed.bind(this)
+    this.isAnyGamepadButtonPressed = this.isAnyGamepadButtonPressed.bind(this)
+
     window.addEventListener('keydown', (e) => this.keys.add(e.key))
     window.addEventListener('keyup', (e) => this.keys.delete(e.key))
   }

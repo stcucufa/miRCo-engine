@@ -1,3 +1,5 @@
+import { Howl } from 'howler'
+
 export class GameLoader {
   constructor(bufferSize = 3) {
     this.BUFFER_SIZE = bufferSize
@@ -6,8 +8,8 @@ export class GameLoader {
     this.allGameManifests = []
   }
 
-  async loadGameManifests(apiUrl, options) {
-    const res = await fetch(apiUrl)
+  async loadGameManifests(options = {}) {
+    const res = await fetch('/api/games')
     let manifests = await res.json()
     manifests = manifests.filter((m) =>
       options.game ? options.game === m.name : true
@@ -16,6 +18,9 @@ export class GameLoader {
     this.BUFFER_SIZE = Math.min(3, manifests.length)
     this.allGameManifests = [...manifests]
     this.gameManifestsQueue = this.shuffleArray([...manifests])
+
+    await this.refillBuffer()
+    return this.loadedGames
   }
 
   async refillBuffer() {
@@ -34,7 +39,7 @@ export class GameLoader {
       try {
         const [mod, assets] = await Promise.all([
           import(`/games/${nextManifest.name}/index.js`),
-          this.preloadMusic(nextManifest),
+          this.preloadAssets(nextManifest),
         ])
 
         this.loadedGames.push({
@@ -48,6 +53,50 @@ export class GameLoader {
     }
   }
 
+  async preloadAssets(manifest) {
+    const assets = {}
+    const basePath = `/games/${manifest.name}/assets/`
+
+    for (const conf of manifest.assets || []) {
+      const { filename, options } = this.assetConf(conf)
+      if (!filename) continue
+
+      if (filename.endsWith('.mp3') || filename.endsWith('.wav')) {
+        assets[filename] = await this.loadAudio(basePath + filename, options)
+      }
+    }
+
+    return assets
+  }
+
+  async loadAudio(path, options = {}) {
+    const sound = new Howl({
+      src: [path],
+      preload: true,
+      ...options,
+    })
+
+    return new Promise((resolve, reject) => {
+      sound.once('load', () => resolve(sound))
+      sound.once('loaderror', reject)
+    })
+  }
+
+  assetConf(conf) {
+    let filename, options
+
+    if (typeof conf === 'string') {
+      filename = conf
+      options = {}
+    } else {
+      const { file, ...rest } = conf
+      filename = file
+      options = rest
+    }
+
+    return { filename, options }
+  }
+
   shuffleArray(arr) {
     const shuffled = [...arr]
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -55,5 +104,13 @@ export class GameLoader {
       ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
+  }
+
+  getNextGame() {
+    const next = this.loadedGames.shift()
+    this.refillBuffer().catch((err) =>
+      console.error('Failed to refill buffer:', err)
+    )
+    return next
   }
 }

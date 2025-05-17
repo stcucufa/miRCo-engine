@@ -6,6 +6,7 @@ import p5 from 'p5'
 import { InputManager } from './InputManager.js'
 import { GameLoader } from './GameLoader.js'
 import { UIManager } from './UIManager.js'
+import { GameLoader } from './GameLoader.js'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
@@ -22,6 +23,7 @@ export class GameManager {
     this.input = new InputManager()
     this.gameLoader = new GameLoader()
     this.ui = new UIManager(this.container)
+    this.gameLoader = new GameLoader(DEFAULT_BUFFER_SIZE)
 
     this.libs = {
       sound: {
@@ -125,66 +127,50 @@ export class GameManager {
   }
 
   async loadGameManifests() {
-    const res = await fetch('/api/games')
-    let manifests = await res.json()
-    manifests = [
-      ...manifests.filter((m) =>
-        this.options.game ? this.options.game === m.name : true
-      ),
-    ]
+    await this.gameLoader.loadGameManifests(this.options)
 
-    this.BUFFER_SIZE = Math.min(3, manifests.length)
-
-    this.allGameManifests = [...manifests]
-    this.gameManifestsQueue = this.shuffleArray([...manifests])
-
-    console.log('Available pending games::', this.gameManifestsQueue)
-
-    // expose all games in directory
-    // this.updateDirectory()
-
-    await this.refillBuffer()
+    await this.gameLoader.refillBuffer()
   }
 
-  async refillBuffer() {
-    while (this.loadedGames.length < this.BUFFER_SIZE) {
-      if (this.gameManifestsQueue.length === 0) {
-        console.log('Manifests queue empty, resetting manifests')
-        this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
-        this.mirco.round++
-        // exit loop if no games are found
-        if (this.gameManifestsQueue.length === 0) {
-          console.error('No games left to queue. Stopping buffer refill.')
-          return
-        }
-      }
+  // async refillBuffer() {
+  //   while (this.loadedGames.length < this.BUFFER_SIZE) {
+  //     if (this.gameManifestsQueue.length === 0) {
+  //       console.log('Manifests queue empty, resetting manifests')
+  //       this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
+  //       this.mirco.round++
+  //       // exit loop if no games are found
+  //       if (this.gameManifestsQueue.length === 0) {
+  //         console.error('No games left to queue. Stopping buffer refill.')
+  //         return
+  //       }
+  //     }
 
-      const nextManifest = this.gameManifestsQueue.shift()
-      if (!nextManifest) continue
+  //     const nextManifest = this.gameManifestsQueue.shift()
+  //     if (!nextManifest) continue
 
-      try {
-        const [mod, assets] = await Promise.all([
-          import(`/games/${nextManifest.name}/index.js`),
-          this.preloadMusic(nextManifest),
-        ])
+  //     try {
+  //       const [mod, assets] = await Promise.all([
+  //         import(`/games/${nextManifest.name}/index.js`),
+  //         this.preloadMusic(nextManifest),
+  //       ])
 
-        this.loadedGames.push({
-          manifest: nextManifest,
-          module: mod,
-          assets,
-        })
-      } catch (err) {
-        console.error(`Failed to load ${nextManifest.name}:`, err)
-      }
-    }
-  }
+  //       this.loadedGames.push({
+  //         manifest: nextManifest,
+  //         module: mod,
+  //         assets,
+  //       })
+  //   } catch (err) {
+  //     console.error(`Failed to load ${nextManifest.name}:`, err)
+  //   }
+  // }
+  // }
 
   async playNext() {
-    let next = this.loadedGames.shift()
+    let next = this.gameLoader.getNextGame()
     if (!next) {
       console.error('Game buffer empty! Refilling...')
-      await this.refillBuffer()
-      next = this.loadedGames.shift()
+      await this.gameLoader.refillBuffer()
+      next = this.gameLoader.getNextGame()
       if (!next) {
         console.error('Still no games after refill')
         return
@@ -236,14 +222,14 @@ export class GameManager {
     this.ui.instructionOverlay.classList.remove('visible')
   }
 
-  shuffleArray(arr) {
-    const shuffled = [...arr]
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-    return shuffled
-  }
+  // shuffleArray(arr) {
+  //   const shuffled = [...arr]
+  //   for (let i = shuffled.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1))
+  //     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  //   }
+  //   return shuffled
+  // }
 
   startGameLoop() {
     this.isRunning = true
@@ -351,20 +337,20 @@ export class GameManager {
     return { p5: theP5, images }
   }
 
-  assetConf(conf) {
-    let filename, options
+  // assetConf(conf) {
+  //   let filename, options
 
-    if (typeof conf === 'string') {
-      filename = conf
-      options = {}
-    } else {
-      const { file, ...rest } = conf
-      filename = file
-      options = rest
-    }
+  //   if (typeof conf === 'string') {
+  //     filename = conf
+  //     options = {}
+  //   } else {
+  //     const { file, ...rest } = conf
+  //     filename = file
+  //     options = rest
+  //   }
 
-    return { filename, options }
-  }
+  //   return { filename, options }
+  // }
 
   async loadImages(manifest, p5) {
     const result = {}
