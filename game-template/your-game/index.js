@@ -4,7 +4,7 @@ export default class MircoGame {
     this.input = input
     this.assets = assets
     this.libs = libs
-    this.mirco = mirco
+    this.mirco = mirco // { round: number, wins: number, losses: number }
 
     this.state = {
       // defaults

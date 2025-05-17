@@ -15,6 +15,7 @@ export default class MircoGame {
 
   /** Create model */
   init(canvas) {
+    console.log('init')
     const customState = {
       timeHeld: 0,
       state: 'idle',
