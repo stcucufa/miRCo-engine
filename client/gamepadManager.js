@@ -1,3 +1,5 @@
+// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+
 export const BUTTON_NAMES = {
   DPAD_UP: 'DPadUp',
   DPAD_DOWN: 'DPadDown',

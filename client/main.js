@@ -1,4 +1,4 @@
-import { GameManager } from './gameManager.js'
+import { GameManager } from './GameManager.js'
 
 function gameNameFromQuery() {
   if (typeof window === undefined) return null

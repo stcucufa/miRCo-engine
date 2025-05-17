@@ -2,41 +2,28 @@ const DEFAULT_INSTRUCTION = 'Ready?'
 
 import { Howl } from 'howler'
 import p5 from 'p5'
-import {
-  GamepadManager,
-  BUTTON_NAMES,
-  BUTTON_MAPPINGS,
-} from './gamepadManager.js'
+
+import { GamepadManager, BUTTON_NAMES } from './GamepadManager.js'
+import { InputManager } from './InputManager.js'
+import { GameLoader } from './GameLoader.js'
+import { UIManager } from './UIManager.js'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
+
 const DEFAULT_AUTHOR_NAME = 'Someone'
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
-const KEY_MAPPINGS = {
-  left: ['ArrowLeft', 'a', 'A'],
-  right: ['ArrowRight', 'd', 'D'],
-  up: ['ArrowUp', 'w', 'W'],
-  down: ['ArrowDown', 's', 'S'],
-}
-const P5_DEFAULTS = {
-  width: CANVAS_WIDTH,
-  height: CANVAS_HEIGHT,
-  settings: {
-    background: 255,
-    imageMode: 'CENTER',
-    rectMode: 'CORNER',
-    angleMode: 'RADIANS',
-    colorMode: 'RGB',
-    textAlign: ['LEFT', 'BASELINE'],
-    textSize: 12,
-  },
-}
 
 export class GameManager {
   constructor(container, options = {}) {
     this.container = container
     this.options = options
     this.gameLoopStarted = false
+
+    this.input = new InputManager()
+
+    this.gameLoader = new GameLoader()
+    this.ui = new UIManager(container)
 
     this.libs = {
       sound: {
@@ -65,24 +52,24 @@ export class GameManager {
     this.showingInstruction = false
     this.currentInstruction = ''
 
-    this.input = {
-      keys: new Set(),
-      gamepad: new GamepadManager(),
-      isPressedLeft: () =>
-        this.isDirectionPressed('left') ||
-        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_LEFT),
-      isPressedRight: () =>
-        this.isDirectionPressed('right') ||
-        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_RIGHT),
-      isPressedUp: () =>
-        this.isDirectionPressed('up') ||
-        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_UP),
-      isPressedDown: () =>
-        this.isDirectionPressed('down') ||
-        this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_DOWN),
-    }
+    // this.input = {
+    //   keys: new Set(),
+    //   gamepad: new GamepadManager(),
+    //   isPressedLeft: () =>
+    //     this.isDirectionPressed('left') ||
+    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_LEFT),
+    //   isPressedRight: () =>
+    //     this.isDirectionPressed('right') ||
+    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_RIGHT),
+    //   isPressedUp: () =>
+    //     this.isDirectionPressed('up') ||
+    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_UP),
+    //   isPressedDown: () =>
+    //     this.isDirectionPressed('down') ||
+    //     this.input.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_DOWN),
+    // }
 
-    this.state = {
+    this.mirco = {
       round: 0,
       wins: 0,
       losses: 0,
@@ -93,44 +80,6 @@ export class GameManager {
     // Bind input handlers
     window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
     window.addEventListener('keyup', (e) => this.input.keys.delete(e.key))
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
-    if ('getGamepads' in navigator) {
-      window.addEventListener(
-        'gamepadconnected',
-        (e) => {
-          console.log(
-            'Gamepad connected at index %d: %s. %d buttons, %d axes.',
-            e.gamepad.index,
-            e.gamepad.id,
-            e.gamepad.buttons.length,
-            e.gamepad.axes.length
-          )
-          const gamepad = e.gamepad
-          console.log('gamepad', gamepad)
-          this.input.gamepads[gamepad.index] = gamepad
-        },
-        false
-      )
-
-      window.addEventListener(
-        'gamepaddisconnected',
-        (e) => {
-          console.log(
-            'Gamepad disconnected from index %d: %s',
-            e.gamepad.index,
-            e.gamepad.id
-          )
-
-          const gamepad = e.gamepad
-          delete this.input.gamepads[gamepad.index]
-        },
-        false
-      )
-
-      // Contiously poll for gamepad state
-      this.input.gamepad.updateGamepadState()
-    }
   }
 
   buildOverlays(container) {
@@ -188,7 +137,7 @@ export class GameManager {
 
   triggerGameplayStart = () => {
     this.gameLoopStarted = true
-    this.hideSplash()
+    this.ui.hideSplash()
     this.playNext()
   }
 
@@ -219,14 +168,6 @@ export class GameManager {
       return
     }
     requestAnimationFrame(this.waitForGamepadAnyInput)
-  }
-
-  showSplash() {
-    this.splashOverlay.style.display = 'flex'
-  }
-
-  hideSplash() {
-    this.splashOverlay.style.display = 'none'
   }
 
   toggleDirectory() {
@@ -302,13 +243,13 @@ export class GameManager {
 
   async init() {
     if (this.options.round) {
-      this.state.round = parseInt(this.options.round)
+      this.mirco.round = parseInt(this.options.round)
       this.scoreOverlay.querySelector('.round').textContent =
-        `Round: ${this.state.round}`
+        `Round: ${this.mirco.round}`
     }
     if (this.options.suppressSplash) {
       // hide splash, start gameplay
-      this.hideSplash()
+      this.ui.hideSplash()
     } else {
       // add event lister for handling splash
       this.listenForAnyKeyToStart()
@@ -321,37 +262,12 @@ export class GameManager {
     }
   }
 
-  isDirectionPressed(direction) {
-    const validKeys = KEY_MAPPINGS[direction]
-    if (!validKeys) return false
+  // isDirectionPressed(direction) {
+  //   const validKeys = KEY_MAPPINGS[direction]
+  //   if (!validKeys) return false
 
-    return validKeys.some((key) => this.input.keys.has(key))
-  }
-
-  // TODO these gamepad functions need to accouunt for the actual gamepad in use, maybe by name or type?
-  isGamepadButtonPressed(button_name) {
-    if (!this.input.gamepad.hasGamepad()) {
-      return false
-    }
-    for (const gamepad of this.input.gamepad.gamepads) {
-      if (!gamepad) continue
-
-      var mappings
-      if (BUTTON_MAPPINGS.has(gamepad.id)) {
-        mappings = BUTTON_MAPPINGS.get(gamepad.id)
-      } else {
-        mappings = BUTTON_MAPPINGS.get('default')
-      }
-
-      const x = mappings.get(button_name)
-      if (gamepad.buttons.length >= x) {
-        if (gamepad.buttons[x].pressed) {
-          return true
-        }
-      }
-    }
-    return false
-  }
+  //   return validKeys.some((key) => this.input.keys.has(key))
+  // }
 
   isAnyGamepadButtonPressed() {
     return this.input.gamepad.isAnyButtonPressed()
@@ -384,7 +300,7 @@ export class GameManager {
       if (this.gameManifestsQueue.length === 0) {
         console.log('Manifests queue empty, resetting manifests')
         this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
-        this.state.round++
+        this.mirco.round++
         // exit loop if no games are found
         if (this.gameManifestsQueue.length === 0) {
           console.error('No games left to queue. Stopping buffer refill.')
@@ -429,7 +345,7 @@ export class GameManager {
     // Initialize game
     this.currentGame = new next.module.default({
       input: this.input,
-      mirco: this.state,
+      mirco: this.mirco,
       assets: { ...next.assets, ...images },
       libs: { ...this.libs, p5 },
     })
@@ -551,16 +467,16 @@ export class GameManager {
 
   updateScore(won) {
     if (won) {
-      this.state.wins++
+      this.mirco.wins++
     } else {
-      this.state.losses++
+      this.mirco.losses++
     }
     this.scoreOverlay.querySelector('.round').textContent =
-      `Round: ${this.state.round}`
+      `Round: ${this.mirco.round}`
     this.scoreOverlay.querySelector('.wins').textContent =
-      `Wins: ${this.state.wins}`
+      `Wins: ${this.mirco.wins}`
     this.scoreOverlay.querySelector('.losses').textContent =
-      `Losses: ${this.state.losses}`
+      `Losses: ${this.mirco.losses}`
   }
 
   resetTimer() {
