@@ -38,6 +38,7 @@ export class MircoEngine {
           }
         },
       },
+      // p5 is added separately between each game to prevent muddying p5 state
     }
 
     this.mirco = {
