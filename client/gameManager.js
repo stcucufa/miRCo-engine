@@ -6,13 +6,14 @@ import p5 from 'p5'
 import { InputManager } from './InputManager.js'
 import { GameLoader } from './GameLoader.js'
 import { UIManager } from './UIManager.js'
-import { GameLoader } from './GameLoader.js'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
 
 const DEFAULT_AUTHOR_NAME = 'Someone'
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
+
+const GAME_DURATION = 5000 // 5sec
 
 export class GameManager {
   constructor(container, options = {}) {
@@ -22,7 +23,7 @@ export class GameManager {
 
     this.input = new InputManager()
     this.gameLoader = new GameLoader()
-    this.ui = new UIManager(this.container)
+    this.ui = new UIManager(this.container, GAME_DURATION)
     this.gameLoader = new GameLoader(DEFAULT_BUFFER_SIZE)
 
     this.libs = {
@@ -46,7 +47,6 @@ export class GameManager {
     this.allGameManifests = []
     this.currentGame = null
 
-    this.gameTimer = null
     this.GAME_DURATION = 5000
 
     this.showingInstruction = false
@@ -57,8 +57,6 @@ export class GameManager {
       wins: 0,
       losses: 0,
     }
-
-    this.ui.buildOverlays(this.container)
 
     // Bind input handlers
     window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
@@ -114,7 +112,7 @@ export class GameManager {
       // add event lister for handling splash
       this.listenForAnyKeyToStart()
     }
-    await this.loadGameManifests()
+    await this.gameLoader.loadGameManifests(this.options)
 
     if (this.options.suppressSplash) {
       // start gameplay rigth away
@@ -125,45 +123,6 @@ export class GameManager {
   isAnyGamepadButtonPressed() {
     return this.input.gamepad.isAnyButtonPressed()
   }
-
-  async loadGameManifests() {
-    await this.gameLoader.loadGameManifests(this.options)
-
-    await this.gameLoader.refillBuffer()
-  }
-
-  // async refillBuffer() {
-  //   while (this.loadedGames.length < this.BUFFER_SIZE) {
-  //     if (this.gameManifestsQueue.length === 0) {
-  //       console.log('Manifests queue empty, resetting manifests')
-  //       this.gameManifestsQueue = this.shuffleArray([...this.allGameManifests])
-  //       this.mirco.round++
-  //       // exit loop if no games are found
-  //       if (this.gameManifestsQueue.length === 0) {
-  //         console.error('No games left to queue. Stopping buffer refill.')
-  //         return
-  //       }
-  //     }
-
-  //     const nextManifest = this.gameManifestsQueue.shift()
-  //     if (!nextManifest) continue
-
-  //     try {
-  //       const [mod, assets] = await Promise.all([
-  //         import(`/games/${nextManifest.name}/index.js`),
-  //         this.preloadMusic(nextManifest),
-  //       ])
-
-  //       this.loadedGames.push({
-  //         manifest: nextManifest,
-  //         module: mod,
-  //         assets,
-  //       })
-  //   } catch (err) {
-  //     console.error(`Failed to load ${nextManifest.name}:`, err)
-  //   }
-  // }
-  // }
 
   async playNext() {
     let next = this.gameLoader.getNextGame()
@@ -188,54 +147,24 @@ export class GameManager {
     })
 
     // Show instruction first
-    this.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
+    this.ui.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
     this.ui.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
 
     this.currentGame.init(this.canvas)
 
     this.startGameLoop()
 
-    // Start refilling buffer asynchronously
-    this.refillBuffer().catch((err) =>
-      console.error('Failed to refill buffer:', err)
-    )
-
     // Automatically end game after time
-    this.gameTimer = setTimeout(() => {
+    this.ui.gameTimer = setTimeout(() => {
       this.endGame(true) // todo: revist win by default
     }, this.GAME_DURATION)
   }
-
-  showInstruction(instruction, duration = 1000) {
-    this.ui.showingInstruction = true
-    this.ui.instructionOverlay.textContent = instruction
-    this.ui.instructionOverlay.classList.add('visible')
-
-    setTimeout(() => {
-      this.ui.showingInstruction = false
-      this.ui.instructionOverlay.classList.remove('visible')
-    }, duration)
-  }
-
-  hideInstruction() {
-    this.ui.showingInstruction = false
-    this.ui.instructionOverlay.classList.remove('visible')
-  }
-
-  // shuffleArray(arr) {
-  //   const shuffled = [...arr]
-  //   for (let i = shuffled.length - 1; i > 0; i--) {
-  //     const j = Math.floor(Math.random() * (i + 1))
-  //     ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  //   }
-  //   return shuffled
-  // }
 
   startGameLoop() {
     this.isRunning = true
     this.lastTime = performance.now()
     this.tick()
-    this.startTimer()
+    this.ui.startTimer()
   }
 
   stopGameLoop() {
@@ -261,7 +190,7 @@ export class GameManager {
 
   endGame(won) {
     this.isRunning = false
-    clearTimeout(this.gameTimer)
+    clearTimeout(this.ui.gameTimer)
     if (this.frameId) {
       cancelAnimationFrame(this.frameId)
       this.frameId = null
@@ -285,21 +214,10 @@ export class GameManager {
     }
 
     // reset timer
-    this.resetTimer()
+    this.ui.resetTimer()
 
     // Schedule next game
     setTimeout(() => this.playNext(), 1000)
-  }
-
-  startTimer() {
-    this.resetTimer()
-
-    // Force reflow to ensure transition reset takes effect
-    this.ui.timerProgress.offsetHeight
-
-    // Start timer animation
-    this.ui.timerProgress.style.transition = `width ${this.GAME_DURATION}ms linear`
-    this.ui.timerProgress.style.width = '0%'
   }
 
   updateScore(won) {
@@ -316,11 +234,6 @@ export class GameManager {
       `Losses: ${this.mirco.losses}`
   }
 
-  resetTimer() {
-    this.ui.timerProgress.style.transition = 'none'
-    this.ui.timerProgress.style.width = '100%'
-  }
-
   async bootstrapP5(manifest) {
     const theP5 = new p5((p) => {
       p.setup = () => {
@@ -330,83 +243,11 @@ export class GameManager {
         p.noLoop() // game manager will control looping
       }
     }, this.container)
-    const images = await this.loadImages(manifest, theP5)
+    const images = await this.gameLoader.loadImages(manifest, theP5)
 
     theP5.setup()
 
     return { p5: theP5, images }
-  }
-
-  // assetConf(conf) {
-  //   let filename, options
-
-  //   if (typeof conf === 'string') {
-  //     filename = conf
-  //     options = {}
-  //   } else {
-  //     const { file, ...rest } = conf
-  //     filename = file
-  //     options = rest
-  //   }
-
-  //   return { filename, options }
-  // }
-
-  async loadImages(manifest, p5) {
-    const result = {}
-    const basePath = `/games/${manifest.name}/assets/`
-
-    for (const conf of manifest.assets || []) {
-      const { filename } = this.assetConf(conf)
-
-      if (!filename) {
-        console.warn(`Unable to load asset for game ${manifest.name}`, conf)
-        continue
-      }
-
-      if (filename.endsWith('.png') || filename.endsWith('.jpg')) {
-        const img = new Image()
-        img.src = basePath + filename
-        await img.decode()
-        result[filename] = await new Promise((resolve) => {
-          p5.loadImage(basePath + filename, (img) => {
-            resolve(img)
-          })
-        })
-      }
-      // TODO: add audio/sprite sheet/etc support
-    }
-
-    return result
-  }
-
-  async preloadMusic(manifest) {
-    const result = {}
-    const basePath = `/games/${manifest.name}/assets/`
-
-    for (const conf of manifest.assets || []) {
-      const { filename, options } = this.assetConf(conf)
-
-      if (!filename) {
-        console.warn(`Unable to load asset for game ${manifest.name}`, conf)
-        continue
-      }
-
-      if (filename.endsWith('.mp3') || filename.endsWith('.wav')) {
-        result[filename] = new Howl({
-          src: [basePath + filename],
-          preload: true,
-          ...options,
-        })
-        // Wait for sound to load
-        await new Promise((resolve, reject) => {
-          result[filename].once('load', resolve)
-          result[filename].once('loaderror', reject)
-        })
-      }
-    }
-
-    return result
   }
 
   buildAuthorInfoHTML(manifest) {

@@ -6,6 +6,15 @@ export class GameLoader {
     this.loadedGames = []
     this.gameManifestsQueue = []
     this.allGameManifests = []
+
+    this.loadGameManifests = this.loadGameManifests.bind(this)
+    this.refillBuffer = this.refillBuffer.bind(this)
+    this.preloadAssets = this.preloadAssets.bind(this)
+    this.loadImages = this.loadImages.bind(this)
+    this.loadAudio = this.loadAudio.bind(this)
+    this.assetConf = this.assetConf.bind(this)
+    this.shuffleArray = this.shuffleArray.bind(this)
+    this.getNextGame = this.getNextGame.bind(this)
   }
 
   async loadGameManifests(options = {}) {
@@ -69,6 +78,32 @@ export class GameLoader {
     return assets
   }
 
+  async loadImages(manifest, p5) {
+    const result = {}
+    const basePath = `/games/${manifest.name}/assets/`
+
+    for (const conf of manifest.assets || []) {
+      const { filename } = this.assetConf(conf)
+
+      if (!filename) {
+        console.warn(`Unable to load asset for game ${manifest.name}`, conf)
+        continue
+      }
+
+      if (filename.endsWith('.png') || filename.endsWith('.jpg')) {
+        const img = new Image()
+        img.src = basePath + filename
+        await img.decode()
+        result[filename] = await new Promise((resolve) => {
+          console.log('loading ', filename)
+          p5.loadImage(basePath + filename, (img) => {
+            resolve(img)
+          })
+        })
+      }
+    }
+    return result
+  }
   async loadAudio(path, options = {}) {
     const sound = new Howl({
       src: [path],

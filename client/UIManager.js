@@ -1,6 +1,11 @@
 export class UIManager {
-  constructor(container) {
+  constructor(container, gameDuration = 5000) {
     this.container = container
+    this.gameDuration = gameDuration
+    this.gameTimer = null
+    this.onTimeUp = null
+    this.showingInstruction = false
+    this.buildOverlays()
   }
 
   buildOverlays() {
@@ -46,35 +51,6 @@ export class UIManager {
     // container.appendChild(this.directoryOverlay)
 
     this.directoryOverlay = this.createOverlay('directory-overlay')
-
-    //     )
-    //     .join('')
-
-    //   // add extra backlink if game param exists (currently loading only one game)
-    //   const backLink = this.options.game
-    //     ? `
-    //   <li class="directory-game-entry directory-back-entry">
-    //       <a href="/"
-    //          class="directory-game-entry"
-    //          tabindex="0"
-    //          role="button">
-    //           <span class="directory-game-name">< Back to all games</span>
-    //       </a>
-    //   </li>
-    // `
-    //     : ''
-
-    //   this.directoryOverlay.innerHTML = `
-    // <div class="directory-header">
-    //     <h2>Available Games (${this.allGameManifests.length})</h2>
-    //     <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
-    // </div>
-    // <ul class="directory-games-list">
-    //     ${gamesList}
-    //     ${backLink}
-    // </ul>
-    // `
-    // }
   }
 
   createOverlay(className, innerHTML = '') {
@@ -96,6 +72,22 @@ export class UIManager {
     this.splashOverlay.style.display = 'none'
   }
 
+  showInstruction(instruction, duration = 1000) {
+    this.showingInstruction = true
+    this.instructionOverlay.textContent = instruction
+    this.instructionOverlay.classList.add('visible')
+
+    setTimeout(() => {
+      this.showingInstruction = false
+      this.instructionOverlay.classList.remove('visible')
+    }, duration)
+  }
+
+  hideInstruction() {
+    this.showingInstruction = false
+    this.instructionOverlay.classList.remove('visible')
+  }
+
   toggleDirectory() {
     const isVisible = this.directoryOverlay.style.display === 'block'
     this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
@@ -115,6 +107,25 @@ export class UIManager {
         }
       }, 0)
     }
+  }
+
+  startTimer(onTimeUp) {
+    this.resetTimer()
+    this.onTimeUp = onTimeUp
+
+    // Force reflow to ensure transition reset takes effect
+    this.timerProgress.offsetHeight
+
+    // Start timer animation
+    this.timerProgress.style.transition = `width ${this.gameDuration}ms linear`
+    this.timerProgress.style.width = '0%'
+  }
+
+  resetTimer() {
+    clearTimeout(this.gameTimer)
+    this.gameTimer = null
+    this.timerProgress.style.transition = 'none'
+    this.timerProgress.style.width = '100%'
   }
 }
 
