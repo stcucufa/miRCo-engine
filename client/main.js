@@ -1,21 +1,14 @@
-import { GameManager } from './GameManager.js'
+import { MircoEngine } from './MircoEngine.js'
 
-function gameNameFromQuery() {
-  if (typeof window === undefined) return null
+function getQueryParams() {
+  if (typeof window === 'undefined') return {}
 
-  return new URLSearchParams(location.search).get('game')
-}
-
-function roundFromQuery() {
-  if (typeof window === undefined) return null
-
-  return new URLSearchParams(location.search).get('round')
-}
-
-function supressSplashFromQuery() {
-  if (typeof window === undefined) return null
-  const val = new URLSearchParams(location.search).get('suppress-splash')
-  return !!val?.match(/true/i)
+  const params = new URLSearchParams(location.search)
+  return {
+    game: params.get('game'),
+    round: params.get('round'),
+    suppressSplash: !!params.get('suppress-splash')?.match(/true/i),
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,10 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     throw new Error('Game container element not found')
   }
 
-  const gameManager = new GameManager(container, {
-    game: gameNameFromQuery(),
-    suppressSplash: supressSplashFromQuery(),
-    round: roundFromQuery(),
-  })
+  const options = getQueryParams()
+
+  const gameManager = new MircoEngine(container, options)
   gameManager.init()
 })

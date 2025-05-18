@@ -1,5 +1,3 @@
-const DEFAULT_INSTRUCTION = 'Ready?'
-
 import { Howl } from 'howler'
 import p5 from 'p5'
 
@@ -15,12 +13,14 @@ const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 
 const GAME_DURATION = 5000 // 5sec
 
-export class GameManager {
+export class MircoEngine {
   constructor(container, options = {}) {
     this.container = container
     this.options = options
     this.gameLoopStarted = false
+    this.currentGame = null
 
+    // managers
     this.input = new InputManager()
     this.gameLoader = new GameLoader()
     this.ui = new UIManager(this.container, GAME_DURATION)
@@ -41,30 +41,42 @@ export class GameManager {
       },
     }
 
-    this.BUFFER_SIZE = DEFAULT_BUFFER_SIZE
-    this.loadedGames = []
-    this.gameManifestsQueue = []
-    this.allGameManifests = []
-    this.currentGame = null
-
-    this.GAME_DURATION = 5000
-
-    this.showingInstruction = false
-    this.currentInstruction = ''
-
     this.mirco = {
       round: 0,
       wins: 0,
       losses: 0,
     }
 
-    // Bind input handlers
+    this.setupKeyboardEventListeners()
+  }
+
+  async init() {
+    if (this.options.round) {
+      this.mirco.round = parseInt(this.options.round)
+      this.scoreOverlay.querySelector('.round').textContent =
+        `Round: ${this.mirco.round}`
+    }
+    if (this.options.suppressSplash) {
+      // hide splash, start gameplay
+      this.ui.hideSplash()
+    } else {
+      // add event lister for handling splash
+      this.listenForAnyKeyToStart()
+    }
+    await this.gameLoader.loadGameManifests(this.options)
+
+    if (this.options.suppressSplash) {
+      // start gameplay rigth away
+      this.triggerGameplayStart()
+    }
+  }
+
+  setupKeyboardEventListeners() {
     window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
     window.addEventListener('keyup', (e) => this.input.keys.delete(e.key))
   }
 
   triggerGameplayStart = () => {
-    console.log('triggered')
     this.gameLoopStarted = true
     this.ui.hideSplash()
     this.playNext()
@@ -99,27 +111,6 @@ export class GameManager {
     requestAnimationFrame(this.waitForGamepadAnyInput)
   }
 
-  async init() {
-    if (this.options.round) {
-      this.mirco.round = parseInt(this.options.round)
-      this.scoreOverlay.querySelector('.round').textContent =
-        `Round: ${this.mirco.round}`
-    }
-    if (this.options.suppressSplash) {
-      // hide splash, start gameplay
-      this.ui.hideSplash()
-    } else {
-      // add event lister for handling splash
-      this.listenForAnyKeyToStart()
-    }
-    await this.gameLoader.loadGameManifests(this.options)
-
-    if (this.options.suppressSplash) {
-      // start gameplay rigth away
-      this.triggerGameplayStart()
-    }
-  }
-
   isAnyGamepadButtonPressed() {
     return this.input.gamepad.isAnyButtonPressed()
   }
@@ -146,9 +137,8 @@ export class GameManager {
       libs: { ...this.libs, p5 },
     })
 
-    // Show instruction first
-    this.ui.showInstruction(next.manifest?.instruction || DEFAULT_INSTRUCTION)
-    this.ui.authorOverlay.innerHTML = this.buildAuthorInfoHTML(next.manifest)
+    // show instruction (timed) and author info
+    this.ui.showGameInfo(next.manifest, DEFAULT_AUTHOR_NAME)
 
     this.currentGame.init(this.canvas)
 
@@ -157,7 +147,7 @@ export class GameManager {
     // Automatically end game after time
     this.ui.gameTimer = setTimeout(() => {
       this.endGame(true) // todo: revist win by default
-    }, this.GAME_DURATION)
+    }, GAME_DURATION)
   }
 
   startGameLoop() {
@@ -237,7 +227,7 @@ export class GameManager {
   async bootstrapP5(manifest) {
     const theP5 = new p5((p) => {
       p.setup = () => {
-        const canvas = p.createCanvas(800, 600)
+        const canvas = p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT)
         this.canvas = canvas
         canvas.parent(this.container)
         p.noLoop() // game manager will control looping
@@ -248,17 +238,5 @@ export class GameManager {
     theP5.setup()
 
     return { p5: theP5, images }
-  }
-
-  buildAuthorInfoHTML(manifest) {
-    // probably never enter this state
-    if (!manifest) {
-      return `game by ${DEFAULT_AUTHOR_NAME}`
-    }
-    return `${manifest?.name} by ${
-      manifest?.authorLink
-        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
-        : manifest?.author || DEFAULT_AUTHOR_NAME
-    }`
   }
 }

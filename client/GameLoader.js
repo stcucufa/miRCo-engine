@@ -95,7 +95,6 @@ export class GameLoader {
         img.src = basePath + filename
         await img.decode()
         result[filename] = await new Promise((resolve) => {
-          console.log('loading ', filename)
           p5.loadImage(basePath + filename, (img) => {
             resolve(img)
           })

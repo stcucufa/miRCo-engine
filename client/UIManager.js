@@ -1,10 +1,13 @@
 export class UIManager {
   constructor(container, gameDuration = 5000) {
     this.container = container
-    this.gameDuration = gameDuration
+    this.GAME_DURATION = gameDuration
     this.gameTimer = null
     this.onTimeUp = null
     this.showingInstruction = false
+    this.currentInstruction = ''
+    this.DEFAULT_INSTRUCTION = 'Ready?'
+
     this.buildOverlays()
   }
 
@@ -62,24 +65,30 @@ export class UIManager {
   }
 
   showSplash() {
-    console.log('showing splash')
     this.splashOverlay.style.display = 'flex'
   }
 
   hideSplash() {
-    console.log('hiding splash')
-    console.log(this.splashOverlay)
     this.splashOverlay.style.display = 'none'
+  }
+
+  showGameInfo(manifest, authorNameFallback = 'Someone') {
+    this.showInstruction(manifest?.instruction || this.DEFAULT_INSTRUCTION)
+
+    this.authorOverlay.innerHTML = this.buildAuthorInfoHTML(
+      manifest,
+      authorNameFallback
+    )
   }
 
   showInstruction(instruction, duration = 1000) {
     this.showingInstruction = true
+    this.currentInstruction = instruction
     this.instructionOverlay.textContent = instruction
     this.instructionOverlay.classList.add('visible')
 
     setTimeout(() => {
-      this.showingInstruction = false
-      this.instructionOverlay.classList.remove('visible')
+      this.hideInstruction()
     }, duration)
   }
 
@@ -117,7 +126,7 @@ export class UIManager {
     this.timerProgress.offsetHeight
 
     // Start timer animation
-    this.timerProgress.style.transition = `width ${this.gameDuration}ms linear`
+    this.timerProgress.style.transition = `width ${this.GAME_DURATION}ms linear`
     this.timerProgress.style.width = '0%'
   }
 
@@ -126,6 +135,17 @@ export class UIManager {
     this.gameTimer = null
     this.timerProgress.style.transition = 'none'
     this.timerProgress.style.width = '100%'
+  }
+
+  buildAuthorInfoHTML(manifest, defaultAuthorName) {
+    if (!manifest) {
+      return `game by ${defaultAuthorName}`
+    }
+    return `${manifest?.name} by ${
+      manifest?.authorLink
+        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || defaultAuthorName}</a>`
+        : manifest?.author || defaultAuthorName
+    }`
   }
 }
 
