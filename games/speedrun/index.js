@@ -20,7 +20,14 @@ export default class MicroGame {
       autoMoving: false,
       autoMovePath: [],
       glitch: { intensity: 0, colorPhase: 0, playerTrail: [] },
-      resurrection: { active: false, phase: 0, startTime: 0, playerEmoji: '🐙', shakeAmount: 0, flashCount: 0 },
+      resurrection: {
+        active: false,
+        phase: 0,
+        startTime: 0,
+        playerEmoji: '🐙',
+        shakeAmount: 0,
+        flashCount: 0,
+      },
       helpMessage: { show: false, startTime: 0 },
     }
 
@@ -31,7 +38,8 @@ export default class MicroGame {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
         this.keysPressed.add(key)
         if (!this.state.autoMoving) {
-          if (this.allArrowsPressed() && !this.state.resurrection.active) this.startAutoMove()
+          if (this.allArrowsPressed() && !this.state.resurrection.active)
+            this.startAutoMove()
           else this.handleMove(key)
         }
       }
@@ -55,10 +63,12 @@ export default class MicroGame {
   }
 
   allArrowsPressed() {
-    return this.keysPressed.has('ArrowUp') &&
+    return (
+      this.keysPressed.has('ArrowUp') &&
       this.keysPressed.has('ArrowDown') &&
       this.keysPressed.has('ArrowLeft') &&
       this.keysPressed.has('ArrowRight')
+    )
   }
 
   init(canvas) {
@@ -70,7 +80,8 @@ export default class MicroGame {
     this.state = {
       ...this.state,
       maze: this.generateMaze(rows, cols),
-      rows, cols,
+      rows,
+      cols,
       playerPosition: { x: 0, y: 0 },
       endPosition: { x: cols - 1, y: rows - 1 },
       visitedCells: new Set(['0,0']),
@@ -83,9 +94,19 @@ export default class MicroGame {
   }
 
   generateMaze(rows, cols) {
-    let maze = Array(rows).fill().map(() =>
-      Array(cols).fill().map(() => ({ top: true, right: true, bottom: true, left: true, visited: false }))
-    )
+    let maze = Array(rows)
+      .fill()
+      .map(() =>
+        Array(cols)
+          .fill()
+          .map(() => ({
+            top: true,
+            right: true,
+            bottom: true,
+            left: true,
+            visited: false,
+          }))
+      )
 
     const dfs = (r, c) => {
       maze[r][c].visited = true
@@ -93,18 +114,24 @@ export default class MicroGame {
         { dr: -1, dc: 0, wall: 'top', oppositeWall: 'bottom' },
         { dr: 0, dc: 1, wall: 'right', oppositeWall: 'left' },
         { dr: 1, dc: 0, wall: 'bottom', oppositeWall: 'top' },
-        { dr: 0, dc: -1, wall: 'left', oppositeWall: 'right' }
+        { dr: 0, dc: -1, wall: 'left', oppositeWall: 'right' },
       ]
 
       for (let i = directions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [directions[i], directions[j]] = [directions[j], directions[i]]
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[directions[i], directions[j]] = [directions[j], directions[i]]
       }
 
       for (const dir of directions) {
         const newR = r + dir.dr
         const newC = c + dir.dc
-        if (newR >= 0 && newR < rows && newC >= 0 && newC < cols && !maze[newR][newC].visited) {
+        if (
+          newR >= 0 &&
+          newR < rows &&
+          newC >= 0 &&
+          newC < cols &&
+          !maze[newR][newC].visited
+        ) {
           maze[r][c][dir.wall] = false
           maze[newR][newC][dir.oppositeWall] = false
           dfs(newR, newC)
@@ -129,13 +156,21 @@ export default class MicroGame {
     if (key === 'ArrowUp' && pos.y > 0 && !maze[pos.y][pos.x].top) {
       newPos.y--
       moved = true
-    } else if (key === 'ArrowDown' && pos.y < this.state.rows - 1 && !maze[pos.y][pos.x].bottom) {
+    } else if (
+      key === 'ArrowDown' &&
+      pos.y < this.state.rows - 1 &&
+      !maze[pos.y][pos.x].bottom
+    ) {
       newPos.y++
       moved = true
     } else if (key === 'ArrowLeft' && pos.x > 0 && !maze[pos.y][pos.x].left) {
       newPos.x--
       moved = true
-    } else if (key === 'ArrowRight' && pos.x < this.state.cols - 1 && !maze[pos.y][pos.x].right) {
+    } else if (
+      key === 'ArrowRight' &&
+      pos.x < this.state.cols - 1 &&
+      !maze[pos.y][pos.x].right
+    ) {
       newPos.x++
       moved = true
     }
@@ -153,7 +188,10 @@ export default class MicroGame {
 
     this.state.visitedCells.add(`${position.x},${position.y}`)
 
-    if (position.x === this.state.endPosition.x && position.y === this.state.endPosition.y) {
+    if (
+      position.x === this.state.endPosition.x &&
+      position.y === this.state.endPosition.y
+    ) {
       this.startResurrection()
       this.state.gameOver = true
       this.state.won = true
@@ -168,8 +206,12 @@ export default class MicroGame {
     const end = this.state.endPosition
 
     let queue = [start]
-    let visited = Array(rows).fill().map(() => Array(cols).fill(false))
-    let prev = Array(rows).fill().map(() => Array(cols).fill(null))
+    let visited = Array(rows)
+      .fill()
+      .map(() => Array(cols).fill(false))
+    let prev = Array(rows)
+      .fill()
+      .map(() => Array(cols).fill(null))
     visited[start.y][start.x] = true
 
     while (queue.length > 0) {
@@ -190,15 +232,21 @@ export default class MicroGame {
         { dx: 0, dy: -1, wall: 'top' },
         { dx: 0, dy: 1, wall: 'bottom' },
         { dx: -1, dy: 0, wall: 'left' },
-        { dx: 1, dy: 0, wall: 'right' }
+        { dx: 1, dy: 0, wall: 'right' },
       ]
 
       for (const dir of directions) {
         const nx = x + dir.dx
         const ny = y + dir.dy
 
-        if (nx >= 0 && nx < cols && ny >= 0 && ny < rows &&
-          !maze[y][x][dir.wall] && !visited[ny][nx]) {
+        if (
+          nx >= 0 &&
+          nx < cols &&
+          ny >= 0 &&
+          ny < rows &&
+          !maze[y][x][dir.wall] &&
+          !visited[ny][nx]
+        ) {
           visited[ny][nx] = true
           prev[ny][nx] = current
           queue.push({ x: nx, y: ny })
@@ -232,7 +280,7 @@ export default class MicroGame {
     r.flashCount = 10
 
     const trail = this.state.glitch.playerTrail
-    if (trail.length > 0) trail.forEach(pos => pos.age = 0)
+    if (trail.length > 0) trail.forEach((pos) => (pos.age = 0))
 
     this.state.gameOver = true
     this.state.won = true
@@ -259,13 +307,14 @@ export default class MicroGame {
 
       g.colorPhase = (g.colorPhase + 1) % 360
       g.intensity = 50 + Math.sin(now * 0.001) * 50
-      g.playerTrail.forEach(pos => pos.age += 0.03)
+      g.playerTrail.forEach((pos) => (pos.age += 0.03))
     } else {
       g.intensity *= 0.995
       g.colorPhase = (g.colorPhase + 1) % 360
 
-      g.playerTrail.forEach(pos => pos.age += 0.1)
-      if (g.playerTrail.length > 0 && g.playerTrail[0].age > 10) g.playerTrail.shift()
+      g.playerTrail.forEach((pos) => (pos.age += 0.1))
+      if (g.playerTrail.length > 0 && g.playerTrail[0].age > 10)
+        g.playerTrail.shift()
 
       if (state.autoMoving) {
         const now = p5.millis()
@@ -285,7 +334,10 @@ export default class MicroGame {
             state.visitedCells.add(`${nextPos.x},${nextPos.y}`)
             g.intensity = 100
 
-            if (nextPos.x === state.endPosition.x && nextPos.y === state.endPosition.y) {
+            if (
+              nextPos.x === state.endPosition.x &&
+              nextPos.y === state.endPosition.y
+            ) {
               this.startResurrection()
               state.autoMoving = false
               state.gameOver = true
@@ -298,7 +350,11 @@ export default class MicroGame {
       }
 
       if (state.autoMoving || r.active) state.helpMessage.show = false
-      else if (!state.helpMessage.show && p5.millis() - state.helpMessage.startTime > 1750) state.helpMessage.show = true
+      else if (
+        !state.helpMessage.show &&
+        p5.millis() - state.helpMessage.startTime > 1750
+      )
+        state.helpMessage.show = true
     }
 
     this.draw()
@@ -314,7 +370,10 @@ export default class MicroGame {
 
     if (r.active && r.shakeAmount > 0) {
       p5.push()
-      p5.translate((Math.random() - 0.5) * 10 * r.shakeAmount, (Math.random() - 0.5) * 10 * r.shakeAmount)
+      p5.translate(
+        (Math.random() - 0.5) * 10 * r.shakeAmount,
+        (Math.random() - 0.5) * 10 * r.shakeAmount
+      )
     }
 
     if (state.autoMoving) {
@@ -324,7 +383,8 @@ export default class MicroGame {
       p5.rect(0, 0, p5.width, p5.height)
     } else if (r.active) {
       if (r.phase === 1) p5.background(20, 20, 40)
-      else if (r.phase === 2) p5.background(Math.random() < 0.05 ? 255 : 10, 10, 20)
+      else if (r.phase === 2)
+        p5.background(Math.random() < 0.05 ? 255 : 10, 10, 20)
     } else p5.background(255)
 
     if (!r.active) this.drawMazeAndPlayer(p5)
@@ -338,7 +398,12 @@ export default class MicroGame {
         p5.fill(255, 100)
         p5.noStroke()
         for (let i = 0; i < 100; i++) {
-          p5.rect(Math.random() * p5.width, Math.random() * p5.height, Math.random() * 5 + 10, Math.random() * 5 + 10)
+          p5.rect(
+            Math.random() * p5.width,
+            Math.random() * p5.height,
+            Math.random() * 5 + 10,
+            Math.random() * 5 + 10
+          )
         }
       }
 
@@ -346,7 +411,8 @@ export default class MicroGame {
       p5.textSize(100 + pulseFactor)
       p5.textAlign(p5.CENTER, p5.CENTER)
 
-      let x = centerX, y = centerY
+      let x = centerX,
+        y = centerY
       if (r.phase === 2) {
         x += (Math.random() - 0.5) * 15 * r.shakeAmount
         y += (Math.random() - 0.5) * 15 * r.shakeAmount
@@ -376,7 +442,7 @@ export default class MicroGame {
       p5.fill(255, 255, 0)
       p5.stroke(0)
       p5.strokeWeight(4)
-      p5.text("PRESS ALL ARROW KEYS!", p5.width / 2, p5.height / 2)
+      p5.text('PRESS ALL ARROW KEYS!', p5.width / 2, p5.height / 2)
       p5.pop()
     }
 
@@ -398,7 +464,7 @@ export default class MicroGame {
         if (state.visitedCells.has(`${c},${r}`)) {
           p5.noStroke()
           if (state.autoMoving) {
-            const hue = (g.colorPhase + (c * r * 2)) % 360
+            const hue = (g.colorPhase + c * r * 2) % 360
             p5.fill(p5.color(`hsba(${hue}, 50%, 80%, 0.3)`))
           } else p5.fill(180, 180, 180, 100)
           p5.rect(x, y, cs, cs)
@@ -419,11 +485,23 @@ export default class MicroGame {
     p5.noStroke()
     p5.textAlign(p5.CENTER, p5.CENTER)
     p5.textSize(cs * 0.7)
-    p5.text('⚰️', m + state.endPosition.x * cs + cs / 2, m + state.endPosition.y * cs + cs / 2)
+    p5.text(
+      '⚰️',
+      m + state.endPosition.x * cs + cs / 2,
+      m + state.endPosition.y * cs + cs / 2
+    )
 
     p5.textSize(cs * 0.8)
-    p5.fill(state.autoMoving ? p5.color(`hsb(${(g.colorPhase * 2) % 360}, 100%, 100%)`) : 0)
-    p5.text(state.resurrection.playerEmoji, m + state.playerPosition.x * cs + cs / 2, m + state.playerPosition.y * cs + cs / 2)
+    p5.fill(
+      state.autoMoving
+        ? p5.color(`hsb(${(g.colorPhase * 2) % 360}, 100%, 100%)`)
+        : 0
+    )
+    p5.text(
+      state.resurrection.playerEmoji,
+      m + state.playerPosition.x * cs + cs / 2,
+      m + state.playerPosition.y * cs + cs / 2
+    )
   }
 
   drawPlayerTrail(p5) {
@@ -447,7 +525,11 @@ export default class MicroGame {
       const alpha = Math.max(0, 1 - pos.age / maxAge)
 
       if (state.autoMoving || state.resurrection.active) {
-        p5.stroke(p5.color(`hsba(${(state.glitch.colorPhase + i * 15) % 360}, 100%, 100%, ${alpha})`))
+        p5.stroke(
+          p5.color(
+            `hsba(${(state.glitch.colorPhase + i * 15) % 360}, 100%, 100%, ${alpha})`
+          )
+        )
       } else p5.stroke(p5.color(`rgba(100, 100, 100, ${alpha})`))
 
       p5.vertex(x, y)
@@ -456,5 +538,7 @@ export default class MicroGame {
     p5.endShape()
   }
 
-  end() { return this.state.won }
+  end() {
+    return this.state.won
+  }
 }

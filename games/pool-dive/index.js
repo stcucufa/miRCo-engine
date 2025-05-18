@@ -17,7 +17,7 @@ export default class MircoGame {
     this.libs.sound.play(this.assets['alive.mp3'])
     const CANVAS_WIDTH = canvas.width // 400;
     const CANVAS_HEIGHT = canvas.height // (400 * 16) / 9;
-    const GRAVITY = 1000;
+    const GRAVITY = 1000
 
     const customState = {
       CANVAS_WIDTH: CANVAS_WIDTH,
@@ -32,7 +32,6 @@ export default class MircoGame {
       poolX: (CANVAS_WIDTH * 5) / 8,
       poolY: CANVAS_HEIGHT - 15.5,
       timeToJump: 1,
-      personImg: this.assets['person.png'],
       pathEndX: null,
       pathEndY: null,
       startTime: null,
@@ -58,28 +57,28 @@ export default class MircoGame {
 
     p5.background('#FEDAB1')
     p5.fill(0)
-    
-    this.drawPerson();
-    this.drawPool();
-    this.drawDivingPlatform();
+
+    this.drawPerson()
+    this.drawPool()
+    this.drawDivingPlatform()
 
     if (this.state.isHeld && !this.input.isPressedUp()) {
       // key used to be pressed but is now released
-      this.keyReleased();
+      this.keyReleased()
     } else if (!this.state.isHeld && this.input.isPressedUp()) {
       // key was previously not pressed but now is
-      this.keyPressed();
+      this.keyPressed()
     }
-    
+
     if (this.state.isHeld && !this.state.isReleased) {
-      this.drawProjectedPath();
+      this.drawProjectedPath()
     }
-      
+
     if (this.state.isReleased) {
       // p5.line(this.state.pathEndX, this.state.pathEndY, this.state.CANVAS_WIDTH / 3, this.state.CANVAS_HEIGHT / 3);
-      this.movePerson();
+      this.movePerson()
     }
-    this.checkWinCondition();
+    this.checkWinCondition()
 
     /** Render stuff with p5.... */
 
@@ -124,87 +123,135 @@ export default class MircoGame {
   }
 
   drawPerson() {
-    this.libs.p5.imageMode(this.libs.p5.CENTER); // to center the image on the position
-    this.libs.p5.image(this.state.personImg, this.state.personX, this.state.personY, 50, 60); // width & height can be customized
+    this.libs.p5.imageMode(this.libs.p5.CENTER) // to center the image on the position
+    this.libs.p5.image(
+      this.assets['person.png'],
+      this.state.personX,
+      this.state.personY,
+      50,
+      60
+    ) // width & height can be customized
   }
 
   drawPool() {
-    this.libs.p5.fill(114, 178, 235);
-    this.libs.p5.rect(this.state.poolX, this.state.poolY, 70, 15);
-    this.libs.p5.stroke(0);
+    this.libs.p5.fill(114, 178, 235)
+    this.libs.p5.rect(this.state.poolX, this.state.poolY, 70, 15)
+    this.libs.p5.stroke(0)
   }
 
   drawDivingPlatform() {
-    this.libs.p5.fill(128, 128, 128);
-    this.libs.p5.rect(this.state.personStartX - 90, this.state.personStartY + 30, 15, this.state.CANVAS_HEIGHT - this.state.personStartY)
-    this.libs.p5.rect(this.state.personStartX - 100, this.state.CANVAS_HEIGHT - 5, 40, 5)
-    
-    this.libs.p5.fill(255, 255, 255);
-    this.libs.p5.rect(this.state.personStartX - 75, this.state.personStartY + 30, 100, 5)
+    this.libs.p5.fill(128, 128, 128)
+    this.libs.p5.rect(
+      this.state.personStartX - 90,
+      this.state.personStartY + 30,
+      15,
+      this.state.CANVAS_HEIGHT - this.state.personStartY
+    )
+    this.libs.p5.rect(
+      this.state.personStartX - 100,
+      this.state.CANVAS_HEIGHT - 5,
+      40,
+      5
+    )
+
+    this.libs.p5.fill(255, 255, 255)
+    this.libs.p5.rect(
+      this.state.personStartX - 75,
+      this.state.personStartY + 30,
+      100,
+      5
+    )
   }
 
   drawProjectedPath() {
-    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000;
-    const intervalChange = (this.state.poolX - this.state.personX) / 1;
+    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000
+    const intervalChange = (this.state.poolX - this.state.personX) / 1
 
-    this.state.pathEndX = this.state.personX + intervalChange * elapsedSeconds;
-    this.state.pathEndY = this.state.poolY;
+    this.state.pathEndX = this.state.personX + intervalChange * elapsedSeconds
+    this.state.pathEndY = this.state.poolY
 
     // this.libs.p5.line(this.state.pathEndX, this.state.pathEndY, this.state.CANVAS_WIDTH / 3, this.state.CANVAS_HEIGHT / 3);
 
-    const steps = 30;
-    const dt = this.state.timeToJump / steps;
+    const steps = 30
+    const dt = this.state.timeToJump / steps
 
-    const tempVelocityX = (this.state.pathEndX - this.state.personX) / this.state.timeToJump;
-    const tempVelocityY = (this.state.pathEndY - this.state.personY - 0.5 * this.state.GRAVITY * this.state.timeToJump * this.state.timeToJump) / this.state.timeToJump;
+    const tempVelocityX =
+      (this.state.pathEndX - this.state.personX) / this.state.timeToJump
+    const tempVelocityY =
+      (this.state.pathEndY -
+        this.state.personY -
+        0.5 *
+          this.state.GRAVITY *
+          this.state.timeToJump *
+          this.state.timeToJump) /
+      this.state.timeToJump
 
-    this.libs.p5.stroke(0);
-    this.libs.p5.noFill();
-    this.libs.p5.beginShape();
+    this.libs.p5.stroke(0)
+    this.libs.p5.noFill()
+    this.libs.p5.beginShape()
     for (let i = 0; i <= steps; i++) {
-      const t = i * dt;
-      const x = this.state.personX + tempVelocityX * t;
-      const y = this.state.personY + tempVelocityY * t + 0.5 * this.state.GRAVITY * t * t;
-      this.libs.p5.vertex(x, y);
+      const t = i * dt
+      const x = this.state.personX + tempVelocityX * t
+      const y =
+        this.state.personY +
+        tempVelocityY * t +
+        0.5 * this.state.GRAVITY * t * t
+      this.libs.p5.vertex(x, y)
     }
-    this.libs.p5.endShape();
+    this.libs.p5.endShape()
   }
 
   keyPressed() {
-    this.state.startTime = this.libs.p5.millis();
-    this.state.isHeld = true;
-    this.state.isReleased = false;
-    console.log("pressed");
+    this.state.startTime = this.libs.p5.millis()
+    this.state.isHeld = true
+    this.state.isReleased = false
+    console.log('pressed')
   }
 
   keyReleased() {
-    this.state.startTime = this.libs.p5.millis();
-    this.state.isHeld = false;
-    this.state.isReleased = true;
-    this.state.personXVelocity = (this.state.pathEndX - this.state.personX) / this.state.timeToJump;
-    this.state.personYVelocity = (this.state.pathEndY - this.state.personY - 0.5 * this.state.GRAVITY * this.state.timeToJump * this.state.timeToJump) / this.state.timeToJump;
-    console.log("released");
+    this.state.startTime = this.libs.p5.millis()
+    this.state.isHeld = false
+    this.state.isReleased = true
+    this.state.personXVelocity =
+      (this.state.pathEndX - this.state.personX) / this.state.timeToJump
+    this.state.personYVelocity =
+      (this.state.pathEndY -
+        this.state.personY -
+        0.5 *
+          this.state.GRAVITY *
+          this.state.timeToJump *
+          this.state.timeToJump) /
+      this.state.timeToJump
+    console.log('released')
   }
 
   movePerson() {
-    this.movePersonX();
-    this.movePersonY();
+    this.movePersonX()
+    this.movePersonY()
   }
 
   movePersonX() {
-    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000;
-    this.state.personX = this.state.personStartX + this.state.personXVelocity * elapsedSeconds;
+    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000
+    this.state.personX =
+      this.state.personStartX + this.state.personXVelocity * elapsedSeconds
   }
-  
+
   movePersonY() {
-    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000;
-    this.state.personY = this.state.personStartY + this.state.personYVelocity * elapsedSeconds + 0.5 * this.state.GRAVITY * elapsedSeconds * elapsedSeconds;
+    let elapsedSeconds = (this.libs.p5.millis() - this.state.startTime) / 1000
+    this.state.personY =
+      this.state.personStartY +
+      this.state.personYVelocity * elapsedSeconds +
+      0.5 * this.state.GRAVITY * elapsedSeconds * elapsedSeconds
   }
 
   checkWinCondition() {
-    if (this.state.personY > this.state.poolY && this.state.personX > this.state.poolX && this.state.personX < this.state.poolX + 70) {
-      console.log("won!");
-      this.state.won = true;
+    if (
+      this.state.personY > this.state.poolY &&
+      this.state.personX > this.state.poolX &&
+      this.state.personX < this.state.poolX + 70
+    ) {
+      console.log('won!')
+      this.state.won = true
     }
   }
 }

@@ -233,6 +233,20 @@ update(dt) {
 
 ```
 
+### Haptic feedback
+
+You can trigger gamepads to vibrate. If no gamepad is plugged in, nothing will happen.
+
+`this.input.gamepad.pulse()`
+
+## Increasing difficulty
+
+MircoEngine keeps track of which "Round" the user is on based on the number of completed games, starting with Round 0. You have access to the `round` value in your game, and can use it for logic that increases the difficulty of the game as rounds increase.
+
+`this.mirco.round`
+
+See examples of `round`-based difficulty logic in [situps](https://github.com/clairefro/miRCo-engine/blob/main/games/situps/index.js)
+
 ## Submitting games
 
 For now, just make a PR with your game (and other games) in the `/games` dir! Please fork this repo if you want to contribute a game so you can make a PR.
