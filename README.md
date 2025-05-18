@@ -255,11 +255,9 @@ Soon I will move game submission to a separate repo, and fetch all the games on 
 
 ## Roadmap
 
-- add dev mode for game makers to iterate on their own game without moving games...
 - Typescript?
 - make console prettier (help wanted)
 - game PR based game submission system that autochecks for unique names, validated manifest.json etc
-- add "START" and "RESTART" buttons
 - add a storyline based on wins/losses?
 
 ## Deployment (for Claire :P )
