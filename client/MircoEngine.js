@@ -1,14 +1,13 @@
 import { Howl } from 'howler'
 import p5 from 'p5'
 
-import { InputManager } from './InputManager.js'
-import { GameLoader } from './GameLoader.js'
-import { UIManager } from './UIManager.js'
+import { InputManager } from './managers/InputManager.js'
+import { GameLoader } from './managers/GameLoader.js'
+import { UIManager } from './managers/UIManager.js'
 
 const CANVAS_WIDTH = 800
 const CANVAS_HEIGHT = 600
 
-const DEFAULT_AUTHOR_NAME = 'Someone'
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 
 const GAME_DURATION = 5000 // 5sec
@@ -63,7 +62,11 @@ export class MircoEngine {
       // add event lister for handling splash
       this.listenForAnyKeyToStart()
     }
-    await this.gameLoader.loadGameManifests(this.options)
+    const allGameManifests = await this.gameLoader.loadGameManifests(
+      this.options
+    )
+
+    this.ui.updateDirectory(allGameManifests, this.options)
 
     if (this.options.suppressSplash) {
       // start gameplay rigth away
@@ -138,7 +141,7 @@ export class MircoEngine {
     })
 
     // show instruction (timed) and author info
-    this.ui.showGameInfo(next.manifest, DEFAULT_AUTHOR_NAME)
+    this.ui.showGameInfo(next.manifest)
 
     this.currentGame.init(this.canvas)
 

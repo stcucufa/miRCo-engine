@@ -29,7 +29,7 @@ export class GameLoader {
     this.gameManifestsQueue = this.shuffleArray([...manifests])
 
     await this.refillBuffer()
-    return this.loadedGames
+    return this.allGameManifests
   }
 
   async refillBuffer() {

@@ -1,3 +1,5 @@
+const DEFAULT_AUTHOR_NAME = 'Someone'
+
 export class UIManager {
   constructor(container, gameDuration = 5000) {
     this.container = container
@@ -12,6 +14,7 @@ export class UIManager {
   }
 
   buildOverlays() {
+    // START SPLASH
     this.splashOverlay = this.createOverlay(
       'start-splash-overlay',
       `
@@ -22,10 +25,11 @@ export class UIManager {
       `
     )
 
+    // GAME INFO
     this.instructionOverlay = this.createOverlay('instruction-overlay')
-
     this.authorOverlay = this.createOverlay('author-overlay')
 
+    // TIMER
     this.timerOverlay = document.createElement('div')
     this.timerOverlay.className = 'timer-overlay'
     this.timerProgress = document.createElement('div')
@@ -33,6 +37,7 @@ export class UIManager {
     this.timerOverlay.appendChild(this.timerProgress)
     this.container.appendChild(this.timerOverlay)
 
+    // SCOREBOARD
     this.scoreOverlay = this.createOverlay(
       'score-overlay',
       `
@@ -41,19 +46,17 @@ export class UIManager {
         <span class="losses">Losses: 0</span>
       `
     )
-    // TODO: ADD DIRECTORY OVERLAY
+    // DIRECTORY
     this.directoryButton = document.createElement('button')
     this.directoryButton.className = 'directory-button'
     this.directoryButton.textContent = 'All Games'
     this.directoryButton.onclick = () => this.toggleDirectory()
     this.container.appendChild(this.directoryButton)
 
-    // this.directoryOverlay = document.createElement('div')
-    // this.directoryOverlay.className = 'directory-overlay'
-    // this.directoryOverlay.style.display = 'none'
-    // container.appendChild(this.directoryOverlay)
-
-    this.directoryOverlay = this.createOverlay('directory-overlay')
+    this.directoryOverlay = document.createElement('div')
+    this.directoryOverlay.className = 'directory-overlay'
+    this.directoryOverlay.style.display = 'none'
+    this.container.appendChild(this.directoryOverlay)
   }
 
   createOverlay(className, innerHTML = '') {
@@ -118,6 +121,55 @@ export class UIManager {
     }
   }
 
+  updateDirectory(allGameManifests, options) {
+    // sort games alphabetically by name
+    const sortedGames = [...allGameManifests].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    )
+
+    const gamesList = sortedGames
+      .map(
+        (game) => `
+          <li class="directory-game-entry">
+              <a href="?game=${game.name}" 
+                   class="directory-game-entry" 
+                   tabindex="0"
+                   data-game="${game.name}"
+                   role="button">
+                    <span class="directory-game-name">${game.name}</span>
+                    <span class="directory-game-author">by ${game.author || DEFAULT_AUTHOR_NAME}</span>
+                </a>
+          </li>
+      `
+      )
+      .join('')
+
+    // add extra backlink if game param exists (currently loading only one game)
+    const backLink = options.game
+      ? `
+    <li class="directory-game-entry directory-back-entry">
+        <a href="/" 
+           class="directory-game-entry" 
+           tabindex="0"
+           role="button">
+            <span class="directory-game-name">< Back to all games</span>
+        </a>
+    </li>
+  `
+      : ''
+
+    this.directoryOverlay.innerHTML = `
+      <div class="directory-header">
+          <h2>Available Games (${allGameManifests.length})</h2>
+          <button tabindex="0" class="directory-close-button" onclick="this.closest('.directory-overlay').style.display='none'">×</button>
+      </div>
+      <ul class="directory-games-list">
+          ${gamesList}
+          ${backLink}
+      </ul>
+  `
+  }
+
   startTimer(onTimeUp) {
     this.resetTimer()
     this.onTimeUp = onTimeUp
@@ -137,36 +189,14 @@ export class UIManager {
     this.timerProgress.style.width = '100%'
   }
 
-  buildAuthorInfoHTML(manifest, defaultAuthorName) {
+  buildAuthorInfoHTML(manifest) {
     if (!manifest) {
-      return `game by ${defaultAuthorName}`
+      return `game by ${DEFAULT_AUTHOR_NAME}`
     }
     return `${manifest?.name} by ${
       manifest?.authorLink
-        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || defaultAuthorName}</a>`
-        : manifest?.author || defaultAuthorName
+        ? `<a href="${manifest.authorLink}" target="_blank">${manifest.author || DEFAULT_AUTHOR_NAME}</a>`
+        : manifest?.author || DEFAULT_AUTHOR_NAME
     }`
   }
 }
-
-// toggleDirectory() {
-//   const isVisible = this.directoryOverlay.style.display === 'block'
-//   this.directoryOverlay.style.display = isVisible ? 'none' : 'block'
-
-//   // disable body scroll when directory open
-//   document.body.style.touchAction = isVisible ? 'auto' : 'none'
-//   this.directoryOverlay.style.touchAction = 'pan-y'
-
-//   // focus directory and first game on open
-//   if (!isVisible) {
-//     this.directoryOverlay.removeAttribute('tabindex') // no accidental tabbing!
-
-//     // Focus on directory after a brief delay to ensure DOM is ready
-//     setTimeout(() => {
-//       const dir = this.directoryOverlay.querySelector('.directory-overlay')
-//       if (dir) {
-//         dir.focus()
-//       }
-//     }, 0)
-//   }
-// }
