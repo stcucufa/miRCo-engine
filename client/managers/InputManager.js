@@ -1,10 +1,10 @@
 import { GamepadManager, BUTTON_NAMES } from './GamepadManager'
 
 const KEY_MAPPINGS = {
-  left: ['ArrowLeft', 'a', 'A'],
-  right: ['ArrowRight', 'd', 'D'],
-  up: ['ArrowUp', 'w', 'W'],
-  down: ['ArrowDown', 's', 'S'],
+  left: ['ArrowLeft', 'a', 'A', 'PointerLeft'],
+  right: ['ArrowRight', 'd', 'D', 'PointerRight'],
+  up: ['ArrowUp', 'w', 'W', 'PointerUp'],
+  down: ['ArrowDown', 's', 'S', 'PointerDown'],
 }
 
 export class InputManager {
@@ -22,6 +22,7 @@ export class InputManager {
 
     window.addEventListener('keydown', (e) => this.keys.add(e.key))
     window.addEventListener('keyup', (e) => this.keys.delete(e.key))
+    window.addEventListener('pointerdown', new PointerEventHandler(this))
   }
 
   isPressedLeft() {
@@ -61,5 +62,54 @@ export class InputManager {
 
   isAnyGamepadButtonPressed() {
     return this.gamepad.isAnyButtonPressed()
+  }
+}
+
+class PointerEventHandler {
+  constructor(input) {
+    this.input = input
+  }
+
+  threshold = 32
+
+  handleEvent(event) {
+    switch (event.type) {
+      case 'pointerdown':
+        window.addEventListener('pointermove', this)
+        window.addEventListener('pointerup', this)
+        window.addEventListener('pointercancel', this)
+        event.preventDefault()
+        this.x0 = event.clientX
+        this.y0 = event.clientY
+        break
+      case 'pointermove':
+        const dx = event.clientX - this.x0
+        const dy = event.clientY - this.y0
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        if (distance > this.threshold) {
+          const key = 'Pointer' + (Math.abs(dx) > Math.abs(dy) ?
+            (dx < 0 ? 'Left' : 'Right') : (dy < 0 ? 'Up' : 'Down'))
+          if (this.key !== key) {
+            this.input.keys.add(key)
+            if (this.key) {
+              this.input.keys.delete(this.key)
+            }
+            this.key = key
+          }
+        } else if (this.key) {
+          this.input.keys.delete(this.key)
+          delete this.key
+        }
+        break
+      case 'pointerup':
+      case 'pointercancel':
+        window.removeEventListener('pointermove', this)
+        window.removeEventListener('pointerup', this)
+        window.removeEventListener('pointercancel', this)
+        if (this.key) {
+          this.input.keys.delete(this.key)
+        }
+        delete this.key
+    }
   }
 }
