@@ -232,6 +232,7 @@ export class MircoEngine {
     const theP5 = new p5((p) => {
       p.setup = () => {
         const canvas = p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT)
+        canvas.elt.setAttribute("style", "");
         this.canvas = canvas
         canvas.parent(this.container)
         p.noLoop() // game manager will control looping

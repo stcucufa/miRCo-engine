@@ -11,10 +11,6 @@
   --color-lose: #f44336;
   --color-recurse-green: #23a050;
 
-  /* Sizes */
-  --game-width: 800px;
-  --game-height: 600px;
-
   /* Typography */
   --font-family: 'Courier New', Courier, monospace;
   --font-size-small: 14px;
@@ -75,12 +71,11 @@ a:hover {
   aspect-ratio: 10 / 8;
 }
 
-
 canvas {
   position: relative;
   background: var(--color-white);
-  width: var(--game-width);
-  height: var(--game-height);
+  width: 100%;
+  aspect-ratio: 4 / 3;
 }
 
 .start-splash-overlay {
