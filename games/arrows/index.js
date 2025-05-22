@@ -45,6 +45,7 @@ export default class MircoGame {
       state.losing = false;
 
       if (state.winning ) {
+        this.input.gamepad.pulse()
         state.score += 1;
         state.won = state.score > 10;
         state.direction = this.chooseNewDirection()
@@ -67,7 +68,9 @@ export default class MircoGame {
       console.log("PRESSING", state.pressed, state.direction)
       state.winning = state.pressed == state.direction;
 
-      if( !state.winning ) state.losing = true;
+      if( !state.winning ) {
+        state.losing = true;
+      }
     }
 
     this.draw()
