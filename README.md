@@ -198,6 +198,24 @@ this.libs.sound.play(this.assets['fart.mp3'])
 this.libs.sound.stop(this.assets['fart.mp3'])
 ```
 
+### Sound volume
+
+You can optionally specify a volume for your with the following syntax.
+
+```js
+{
+  "name": "launch",
+  "assets": [
+    { "file": "whirring.wav", "volume": 1.2 },
+    { "file": "cheers.wav", "volume": 1.3 },
+    "penelope.png"
+  ],
+  "instruction": "Fly!",
+  "author": "Jack Ratner",
+  "authorLink": "https://www.recurse.com/directory/6651-jack-ratner"
+}
+```
+
 ### Inputs
 
 Only 4 game controls are allowed: "left", "right", "up", "down"
