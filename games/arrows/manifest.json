@@ -1,7 +1,7 @@
 {
   "name": "arrows",
   "assets": [],
-  "instruction": "PRESS IT",
+  "instruction": "PRESS ←↑↓→ 10",
   "author": "NN",
   "authorLink": "https://nicknoble.works"
 }
