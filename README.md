@@ -26,7 +26,7 @@ npm i
 npm run dev
 ```
 
-If you are working on the Game Manger (Engine) itself, `npm run dev`
+If you are working on the Game Manager (Engine) itself, `npm run dev`
 
 ```sh
 # install deps
@@ -198,24 +198,6 @@ this.libs.sound.play(this.assets['fart.mp3'])
 this.libs.sound.stop(this.assets['fart.mp3'])
 ```
 
-### Sound volume
-
-You can optionally specify a volume for your with the following syntax.
-
-```js
-{
-  "name": "launch",
-  "assets": [
-    { "file": "whirring.wav", "volume": 1.2 },
-    { "file": "cheers.wav", "volume": 1.3 },
-    "penelope.png"
-  ],
-  "instruction": "Fly!",
-  "author": "Jack Ratner",
-  "authorLink": "https://www.recurse.com/directory/6651-jack-ratner"
-}
-```
-
 ### Inputs
 
 Only 4 game controls are allowed: "left", "right", "up", "down"
@@ -269,7 +251,7 @@ See examples of `round`-based difficulty logic in [situps](https://github.com/cl
 
 For now, just make a PR with your game (and other games) in the `/games` dir! Please fork this repo if you want to contribute a game so you can make a PR.
 
-Someday the game submission may move to a separate repo, and fetch all the games would be fetched on launch.
+Soon I will move game submission to a separate repo, and fetch all the games on launch.
 
 ## Roadmap
 
