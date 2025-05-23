@@ -1,0 +1,7 @@
+{
+  "name": "impossible",
+  "assets": ["key.png", "keys.png"],
+  "instruction": "Press the right key!",
+  "author": "Sarah",
+  "authorLink": "https://tuanyuan2008.github.io"
+}
