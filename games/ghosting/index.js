@@ -29,7 +29,6 @@ export default class MircoGame {
       score: 0,
       startTime: performance.now(),
       currentAvatar: null,
-      message: '',
       lastHoleIndex: -1,
       keyProcessed: false,
       floaters: [],
@@ -61,10 +60,7 @@ export default class MircoGame {
         state.score += pressedKey === correctKey ? 1 : -1
         state.currentAvatar.feedbackEmoji =
           pressedKey === correctKey ? '✅' : '❌'
-
-        state.currentAvatar.feedbackStartTime = performance.now()
         state.currentAvatar.hasBeenJudged = true
-        state.currentAvatar.isPoppingDown = true
 
         setTimeout(() => {
           this.spawnNewAvatar()
@@ -81,7 +77,16 @@ export default class MircoGame {
     this.drawAvatar()
     this.drawFloaters()
     this.displayScore()
-    this.showGameOverText()
+
+    if (this.state.gameOver) {
+      p5.push()
+      p5.fill(0, 0, 0, 150)
+      p5.noStroke()
+      p5.rect(0, 0, p5.width, p5.height)
+      p5.pop()
+
+      this.showGameOverText()
+    }
   }
 
   end() {
@@ -109,28 +114,20 @@ export default class MircoGame {
       p5.image(avatar.image, avatarPosition.x - 30, avatarPosition.y - 60)
     }
 
-    if (avatar.isPoppingDown) {
-      avatar.popY = p5.lerp(avatar.popY, 0, 0.2)
-    } else {
-      avatar.popY = 30
-    }
-
     if (avatar.feedbackEmoji) {
-      const timeSince = performance.now() - avatar.feedbackStartTime
-      const yOffset = p5.map(timeSince, 0, 500, 0, -30)
       p5.textAlign(p5.CENTER, p5.CENTER)
       p5.textSize(32)
-      p5.text(
-        avatar.feedbackEmoji,
-        avatarPosition.x,
-        avatarPosition.y - avatar.popY + yOffset
-      )
+      p5.text(avatar.feedbackEmoji, avatarPosition.x, avatarPosition.y)
     }
   }
 
   drawFloaters() {
     const p5 = this.libs.p5
     const state = this.state
+
+    if (state.gameOver) {
+      return
+    }
 
     const now = performance.now()
     if (Math.floor(now / 100) % 10 === 0) {
@@ -165,25 +162,29 @@ export default class MircoGame {
   showGameOverText() {
     const p5 = this.libs.p5
     const state = this.state
-    if (state.gameOver) {
-      p5.textSize(48)
-      p5.textAlign(p5.CENTER)
-      if (state.won) {
-        p5.fill(0, 255, 0)
-      } else {
-        p5.fill(255, 0, 0)
-      }
-      p5.text(state.message, p5.width / 2, p5.height / 2)
+    let gameOverMessage = ''
+
+    p5.push()
+    p5.textSize(48)
+    p5.textAlign(p5.CENTER, p5.CENTER)
+    p5.fill(255)
+    if (state.won) {
+      p5.fill(0, 255, 0)
+      gameOverMessage = '💕 You found love!'
+    } else {
+      p5.fill(255, 0, 0)
+      gameOverMessage = '👻 Ghosted!'
     }
+    p5.text(gameOverMessage, p5.width / 2, p5.height / 2)
+    p5.pop()
   }
 
   checkGameOver() {
     const state = this.state
 
-    if (performance.now() - state.startTime > 5000) {
+    if (performance.now() - state.startTime >= 4500) {
       state.gameOver = true
       state.won = state.score > 0
-      state.message = state.won ? 'You found love!' : 'Ghosted!'
     }
   }
 
@@ -207,10 +208,6 @@ export default class MircoGame {
       isLoveMatch,
       hasBeenJudged: false,
       feedbackEmoji: null,
-      feedbackY: 0,
-      feedbackStartTime: 0,
-      popY: 30,
-      isPoppingDown: false,
       image: this.assets['gigachad.png'],
     }
   }

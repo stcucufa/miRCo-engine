@@ -1,7 +1,7 @@
 {
-  "name": "ghosted",
-  "assets": ["gigachad.png"],
-  "instruction": "Match (Right) or Ghost (Left)!",
+  "name": "bus-run",
+  "assets": [],
+  "instruction": "Catch the bus!",
   "author": "Funmi Oludaiye",
   "authorLink": "https://www.recurse.com/directory/6725-funmi-oludaiye"
 }
