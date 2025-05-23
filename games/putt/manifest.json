@@ -1,0 +1,7 @@
+{
+  "name": "putt-putt",
+  "assets": ["course1.png", "course2.png", "course3.png"],
+  "instruction": "Putt your heart out!",
+  "author": "Will Bicks",
+  "authorLink": "https://www.willbicks.com"
+}
