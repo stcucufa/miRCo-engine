@@ -1,0 +1,13 @@
+{
+  "name": "period-catch",
+  "assets": [
+    { "file": "blood.wav", "volume": 0.7, "rate": 1.47 },
+    "cup.png",
+    "pad.png",
+    "period-drop.png",
+    "tampon.png"
+  ],
+  "instruction": "catch the period",
+  "author": "Leah Peker",
+  "authorLink": "https://github.com/leahpeker"
+}
