@@ -231,12 +231,12 @@ export class MircoEngine {
   async bootstrapP5(manifest) {
     const theP5 = new p5((p) => {
       p.setup = () => {
-        // Create our own canvas so that we can override the default p5 styles
         const element = document.createElement('canvas')
         const canvas = p.createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, element)
         this.canvas = canvas
         canvas.parent(this.container)
         p.noLoop() // game manager will control looping
+        // We created our own canvas element to override the default p5 styles
         element.style = ""
       }
     }, this.container)
