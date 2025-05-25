@@ -10,7 +10,7 @@ const CANVAS_HEIGHT = 600
 
 const DEFAULT_BUFFER_SIZE = 3 // Keep 3 games loaded at all times
 
-const GAME_DURATION = 5000 // 5sec
+const GAME_DURATION = 50000000 // 5sec
 
 export class MircoEngine {
   constructor(container, options = {}) {
