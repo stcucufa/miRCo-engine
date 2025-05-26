@@ -76,8 +76,8 @@ export class MircoEngine {
   }
 
   setupKeyboardEventListeners() {
-    window.addEventListener('keydown', (e) => this.input.keys.add(e.key))
-    window.addEventListener('keyup', (e) => this.input.keys.delete(e.key))
+    window.addEventListener('keydown', (e) => this.input.curKeys.add(e.key))
+    window.addEventListener('keyup', (e) => this.input.curKeys.delete(e.key))
   }
 
   triggerGameplayStart = () => {
@@ -177,6 +177,7 @@ export class MircoEngine {
 
     // Update current game
     this.currentGame.update?.(deltaTime)
+    this.input.postUpdate()
 
     // Schedule next frame
     this.frameId = requestAnimationFrame((time) => this.tick(time))

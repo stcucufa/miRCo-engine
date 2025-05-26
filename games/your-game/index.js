@@ -54,7 +54,6 @@ export default class MircoGame {
     // this function gets called every tick
     // dt is deltaTime - time between ticks
     const state = this.state
-    console.log(dt)
 
     if (this.input.isPressedUp()) {
       state.last_pressed = 'UP'
@@ -130,30 +129,68 @@ export default class MircoGame {
 
     /** Render stuff with p5.... */
     p5.background(255)
-    p5.textSize(36)
-    p5.textAlign(p5.CENTER)
-    p5.text('Target:', p5.width / 2, p5.height / 4)
+    // p5.textSize(36)
+    // p5.textAlign(p5.CENTER)
+    // p5.text('Target:', p5.width / 2, p5.height / 4)
 
-    p5.text(state.target_lock.join(' '), p5.width / 2, p5.height / 3)
+    // p5.text(state.target_lock.join(' '), p5.width / 2, p5.height / 3)
+    // just pressed UP : red + white
+    // pressed UP : blue + white
 
-    let curr_width = (2 * p5.width) / 6
-    for (let i = 0; i < state.lock.length; i++) {
-      if (i == state.curr_lock_index) {
-        p5.fill('red')
-        p5.text(state.lock[i], curr_width, p5.height / 2)
-        p5.fill('black')
-      } else {
-        p5.text(state.lock[i], curr_width, p5.height / 2)
-      }
-      curr_width += p5.width / 6
+    p5.fill('yellow')
+    p5.stroke('white')
+    if (this.input.isPressedUp()) {
+      p5.fill('purple')
     }
+    p5.beginShape()
+    p5.vertex(20, 20)
+    p5.vertex(40, 20)
+    p5.vertex(40, 40)
+    p5.vertex(20, 40)
+    p5.endShape(p5.CLOSE)
 
-    if (state.gameOver) {
-      p5.textSize(48)
-      p5.fill(0, 255, 0) // green
-      p5.textAlign(p5.CENTER, p5.CENTER)
-      p5.text(state.message, p5.width / 2, p5.height * 0.25)
+    p5.fill('yellow')
+    p5.stroke('white')
+    if (this.input.justPressedUp()) {
+      p5.fill('cyan')
     }
+    p5.beginShape()
+    p5.vertex(60, 20)
+    p5.vertex(80, 20)
+    p5.vertex(80, 40)
+    p5.vertex(60, 40)
+    p5.endShape(p5.CLOSE)
+
+    p5.fill('yellow')
+    p5.stroke('white')
+    if (this.input.releasedUp()) {
+      p5.fill('red')
+    }
+    p5.beginShape()
+    p5.vertex(100, 20)
+    p5.vertex(120, 20)
+    p5.vertex(120, 40)
+    p5.vertex(100, 40)
+    p5.endShape(p5.CLOSE)
+
+    // let curr_width = (2 * p5.width) / 6
+    // for (let i = 0; i < state.lock.length; i++) {
+    //   if (i == state.curr_lock_index) {
+    //     p5.fill('red')
+    //     p5.text(state.lock[i], curr_width, p5.height / 2)
+    //     p5.fill('black')
+    //   } else {
+    //     p5.text(state.lock[i], curr_width, p5.height / 2)
+    //   }
+    //   curr_width += p5.width / 6
+    // }
+
+    // if (state.gameOver) {
+    //   p5.textSize(48)
+    //   p5.fill(0, 255, 0) // green
+    //   p5.textAlign(p5.CENTER, p5.CENTER)
+    //   p5.text(state.message, p5.width / 2, p5.height * 0.25)
+    // }
 
     // p5.background(255);
     // p5.push();
@@ -182,12 +219,12 @@ export default class MircoGame {
     //   30
     // );
 
-    if (state.gameOver) {
-      p5.textSize(48)
-      p5.textAlign(p5.CENTER)
-      p5.fill(0, 255, 0) // green
-      p5.text(state.message, p5.width / 2, p5.height / 2)
-    }
+    // if (state.gameOver) {
+    //   p5.textSize(48)
+    //   p5.textAlign(p5.CENTER)
+    //   p5.fill(0, 255, 0) // green
+    //   p5.text(state.message, p5.width / 2, p5.height / 2)
+    // }
   }
 
   /** return true if game is won, false if lost */
