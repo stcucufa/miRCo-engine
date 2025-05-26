@@ -10,6 +10,7 @@ const KEY_MAPPINGS = {
 export class InputManager {
   constructor() {
     this.keys = new Set()
+    this.prevKeys = new Set()
     this.gamepad = new GamepadManager()
 
     this.isPressedLeft = this.isPressedLeft.bind(this)
@@ -63,3 +64,10 @@ export class InputManager {
     return this.gamepad.isAnyButtonPressed()
   }
 }
+
+// justPressed - keydown event in last tick
+// justReleased - keyup event in last tick
+
+// pressed
+// check - = miRCo "isPressed"
+// release
