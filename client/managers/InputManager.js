@@ -7,59 +7,119 @@ const KEY_MAPPINGS = {
   down: ['ArrowDown', 's', 'S'],
 }
 
+const mapDirectionToKeys = (direction) => {
+  const validKeys = KEY_MAPPINGS[direction]
+  return validKeys // undefined if no valid keys
+}
+
+const checkValidKeys = (direction, keys) => {
+  const validKeys = mapDirectionToKeys(direction)
+  return validKeys?.some((key) => keys.has(key)) ?? false
+}
+
 export class InputManager {
   constructor() {
-    this.keys = new Set()
+    this.curKeys = new Set()
+    this.prevKeys = new Set()
+    this.releasedKeys = new Set()
     this.gamepad = new GamepadManager()
 
-    this.isPressedLeft = this.isPressedLeft.bind(this)
-    this.isPressedRight = this.isPressedRight.bind(this)
-    this.isPressedUp = this.isPressedUp.bind(this)
-    this.isPressedDown = this.isPressedDown.bind(this)
-    this.isDirectionPressed = this.isDirectionPressed.bind(this)
-    this.isGamepadButtonPressed = this.isGamepadButtonPressed.bind(this)
-    this.isAnyGamepadButtonPressed = this.isAnyGamepadButtonPressed.bind(this)
-
-    window.addEventListener('keydown', (e) => this.keys.add(e.key))
-    window.addEventListener('keyup', (e) => this.keys.delete(e.key))
+    window.addEventListener('keydown', (e) => {
+      if (e.repeat) return
+      this.prevKeys.add(e.key)
+      this.curKeys.add(e.key)
+    })
+    window.addEventListener('keyup', (e) => {
+      this.releasedKeys.add(e.key)
+      this.curKeys.delete(e.key)
+    })
   }
 
+  // JUST PRESSED
+  justPressedLeft() {
+    return (
+      checkValidKeys('left', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_LEFT)
+    )
+  }
+  justPressedRight() {
+    return (
+      checkValidKeys('right', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_RIGHT)
+    )
+  }
+  justPressedUp() {
+    return (
+      checkValidKeys('up', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_UP)
+    )
+  }
+  justPressedDown() {
+    return (
+      checkValidKeys('down', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_DOWN)
+    )
+  }
+
+  // IS BEING HELD
   isPressedLeft() {
     return (
-      this.isDirectionPressed('left') ||
+      checkValidKeys('left', this.curKeys) ||
       this.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_LEFT)
     )
   }
   isPressedRight() {
     return (
-      this.isDirectionPressed('right') ||
+      checkValidKeys('right', this.curKeys) ||
       this.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_RIGHT)
     )
   }
   isPressedUp() {
     return (
-      this.isDirectionPressed('up') ||
+      checkValidKeys('up', this.curKeys) ||
       this.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_UP)
     )
   }
   isPressedDown() {
     return (
-      this.isDirectionPressed('down') ||
+      checkValidKeys('down', this.curKeys) ||
       this.gamepad.isButtonPressed(BUTTON_NAMES.DPAD_DOWN)
     )
   }
-
-  isDirectionPressed(direction) {
-    const validKeys = KEY_MAPPINGS[direction]
-    if (!validKeys) return false
-    return validKeys.some((key) => this.keys.has(key))
+  // TODO: JUST RELEASED
+  releasedLeft() {
+    return (
+      checkValidKeys('left', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_LEFT)
+    )
+  }
+  releasedRight() {
+    return (
+      checkValidKeys('right', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_RIGHT)
+    )
+  }
+  releasedUp() {
+    return (
+      checkValidKeys('up', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_UP)
+    )
+  }
+  releasedDown() {
+    return (
+      checkValidKeys('down', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_DOWN)
+    )
   }
 
-  isGamepadButtonPressed(buttonName) {
-    return this.gamepad.isButtonPressed(buttonName)
-  }
-
+  // used for dismissing start splash in engine
   isAnyGamepadButtonPressed() {
     return this.gamepad.isAnyButtonPressed()
+  }
+
+  postUpdate() {
+    this.prevKeys.clear()
+    this.releasedKeys.clear()
+    this.gamepad.postUpdate()
   }
 }

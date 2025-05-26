@@ -40,6 +40,9 @@ export const BUTTON_MAPPINGS = new Map([
 export class GamepadManager {
   constructor() {
     this.gamepads = []
+    this.curButtons = new Map() // Currently pressed buttons
+    this.prevButtons = new Map() // Previous frame's buttons
+    this.releasedButtons = new Map() // Buttons released this frame
 
     if ('getGamepads' in navigator) {
       window.addEventListener('gamepadconnected', this.handleGamepadConnected)
@@ -61,6 +64,20 @@ export class GamepadManager {
       gamepad.axes.length
     )
     this.gamepads[gamepad.index] = gamepad
+
+    // Initialize button state maps for new gamepad
+    this.curButtons.set(
+      gamepad.index,
+      new Array(gamepad.buttons.length).fill(false)
+    )
+    this.prevButtons.set(
+      gamepad.index,
+      new Array(gamepad.buttons.length).fill(false)
+    )
+    this.releasedButtons.set(
+      gamepad.index,
+      new Array(gamepad.buttons.length).fill(false)
+    )
   }
 
   handleGamepadDisconnected = (event) => {
@@ -71,14 +88,28 @@ export class GamepadManager {
       gamepad.id
     )
     delete this.gamepads[gamepad.index]
+    this.curButtons.delete(gamepad.index)
+    this.prevButtons.delete(gamepad.index)
+    this.releasedButtons.delete(gamepad.index)
   }
 
   updateGamepadState = () => {
     const gamepads = navigator.getGamepads()
     for (const gamepad of gamepads) {
-      if (gamepad) {
-        this.gamepads[gamepad.index] = gamepad
-      }
+      if (!gamepad) continue
+
+      const curState = this.curButtons.get(gamepad.index)
+      const prevState = this.prevButtons.get(gamepad.index)
+      const released = this.releasedButtons.get(gamepad.index)
+
+      // Update button states
+      gamepad.buttons.forEach((button, index) => {
+        prevState[index] = curState[index]
+        curState[index] = button.pressed
+        released[index] = !curState[index] && prevState[index]
+      })
+
+      this.gamepads[gamepad.index] = gamepad
     }
     requestAnimationFrame(this.updateGamepadState)
   }
@@ -94,10 +125,47 @@ export class GamepadManager {
       const mappings =
         BUTTON_MAPPINGS.get(gamepad.id) || BUTTON_MAPPINGS.get('default')
       const buttonIndex = mappings.get(buttonName)
+      const curState = this.curButtons.get(gamepad.index)
+
+      if (curState && curState[buttonIndex]) {
+        return true
+      }
+    }
+    return false
+  }
+
+  isButtonJustPressed(buttonName) {
+    for (const gamepad of this.gamepads) {
+      if (!gamepad) continue
+
+      const mappings =
+        BUTTON_MAPPINGS.get(gamepad.id) || BUTTON_MAPPINGS.get('default')
+      const buttonIndex = mappings.get(buttonName)
+      const curState = this.curButtons.get(gamepad.index)
+      const prevState = this.prevButtons.get(gamepad.index)
+
       if (
-        gamepad.buttons.length > buttonIndex &&
-        gamepad.buttons[buttonIndex].pressed
+        curState &&
+        prevState &&
+        curState[buttonIndex] &&
+        !prevState[buttonIndex]
       ) {
+        return true
+      }
+    }
+    return false
+  }
+
+  isButtonReleased(buttonName) {
+    for (const gamepad of this.gamepads) {
+      if (!gamepad) continue
+
+      const mappings =
+        BUTTON_MAPPINGS.get(gamepad.id) || BUTTON_MAPPINGS.get('default')
+      const buttonIndex = mappings.get(buttonName)
+      const released = this.releasedButtons.get(gamepad.index)
+
+      if (released && released[buttonIndex]) {
         return true
       }
     }
@@ -108,13 +176,23 @@ export class GamepadManager {
     for (const gamepad of this.gamepads) {
       if (!gamepad) continue
 
-      for (const button of gamepad.buttons) {
-        if (button.pressed) {
-          return true
-        }
+      const curState = this.curButtons.get(gamepad.index)
+      if (curState && curState.some((pressed) => pressed)) {
+        return true
       }
     }
     return false
+  }
+
+  postUpdate() {
+    for (const gamepad of this.gamepads) {
+      if (!gamepad) continue
+
+      const released = this.releasedButtons.get(gamepad.index)
+      if (released) {
+        released.fill(false)
+      }
+    }
   }
 
   pulse() {
