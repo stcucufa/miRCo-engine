@@ -17,7 +17,6 @@ const checkValidKeys = (direction, keys) => {
   return validKeys?.some((key) => keys.has(key)) ?? false
 }
 
-// TODO: UPDATE GAMEPAD MANAGER TO HANDLE JUST PRESSED AND RELEASED
 export class InputManager {
   constructor() {
     this.curKeys = new Set()
@@ -25,7 +24,6 @@ export class InputManager {
     this.releasedKeys = new Set()
     this.gamepad = new GamepadManager()
 
-    // will relying on JS event listeners pose problems (async race condition?)
     window.addEventListener('keydown', (e) => {
       if (e.repeat) return
       this.prevKeys.add(e.key)
@@ -36,21 +34,34 @@ export class InputManager {
       this.curKeys.delete(e.key)
     })
   }
+
   // JUST PRESSED
   justPressedLeft() {
-    return checkValidKeys('left', this.prevKeys)
+    return (
+      checkValidKeys('left', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_LEFT)
+    )
   }
   justPressedRight() {
-    return checkValidKeys('right', this.prevKeys)
+    return (
+      checkValidKeys('right', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_RIGHT)
+    )
   }
   justPressedUp() {
-    return checkValidKeys('up', this.prevKeys)
+    return (
+      checkValidKeys('up', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_UP)
+    )
   }
   justPressedDown() {
-    return checkValidKeys('down', this.prevKeys)
+    return (
+      checkValidKeys('down', this.prevKeys) ||
+      this.gamepad.isButtonJustPressed(BUTTON_NAMES.DPAD_DOWN)
+    )
   }
+
   // IS BEING HELD
-  // TODO: rename CHECK
   isPressedLeft() {
     return (
       checkValidKeys('left', this.curKeys) ||
@@ -77,23 +88,31 @@ export class InputManager {
   }
   // TODO: JUST RELEASED
   releasedLeft() {
-    return checkValidKeys('left', this.releasedKeys)
+    return (
+      checkValidKeys('left', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_LEFT)
+    )
   }
   releasedRight() {
-    return checkValidKeys('right', this.releasedKeys)
+    return (
+      checkValidKeys('right', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_RIGHT)
+    )
   }
   releasedUp() {
-    return checkValidKeys('up', this.releasedKeys)
+    return (
+      checkValidKeys('up', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_UP)
+    )
   }
   releasedDown() {
-    return checkValidKeys('down', this.releasedKeys)
+    return (
+      checkValidKeys('down', this.releasedKeys) ||
+      this.gamepad.isButtonReleased(BUTTON_NAMES.DPAD_DOWN)
+    )
   }
 
-  // GAMEPAD
-  isGamepadButtonPressed(buttonName) {
-    return this.gamepad.isButtonPressed(buttonName)
-  }
-
+  // used for dismissing start splash in engine
   isAnyGamepadButtonPressed() {
     return this.gamepad.isAnyButtonPressed()
   }
@@ -101,12 +120,6 @@ export class InputManager {
   postUpdate() {
     this.prevKeys.clear()
     this.releasedKeys.clear()
+    this.gamepad.postUpdate()
   }
 }
-
-// justPressed - keydown event in last tick
-// justReleased - keyup event in last tick
-
-// pressed
-// check  = miRCo "isPressed"
-// release

@@ -222,12 +222,11 @@ Only 4 game controls are allowed: "left", "right", "up", "down"
 
 The player can control with arrow keys, WASD, or CandyCon gamepad controller.
 
-Currently pressed keys can be accessed from
-
-- `this.input.isPressedLeft()`
-- `this.input.isPressedRight()`
-- `this.input.isPressedUp()`
-- `this.input.isPressedDown()`
+| State         | Description                                            | Left                           | Right                           | Up                           | Down                           |
+| ------------- | ------------------------------------------------------ | ------------------------------ | ------------------------------- | ---------------------------- | ------------------------------ |
+| Just Pressed  | Returns `true` only on the first frame when pressed    | `this.input.justPressedLeft()` | `this.input.justPressedRight()` | `this.input.justPressedUp()` | `this.input.justPressedDown()` |
+| Being Held    | Returns `true` for entire duration button is held down | `this.input.isPressedLeft()`   | `this.input.isPressedRight()`   | `this.input.isPressedUp()`   | `this.input.isPressedDown()`   |
+| Just Released | Returns `true` only on the first frame when released   | `this.input.releasedLeft()`    | `this.input.releasedRight()`    | `this.input.releasedUp()`    | `this.input.releasedDown()`    |
 
 ```js
 update(dt) {
@@ -249,6 +248,27 @@ update(dt) {
   }
 }
 
+```
+
+or...
+
+```js
+update(dt) {
+  // Check if button was just pressed this frame
+  if (this.input.justPressedUp()) {
+    this.jump();
+  }
+
+  // Check if button is being held
+  if (this.input.isPressedRight()) {
+    this.moveRight(dt);
+  }
+
+  // Check if button was just released
+  if (this.input.releasedDown()) {
+    this.stopCrouching();
+  }
+}
 ```
 
 ### Haptic feedback
