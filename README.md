@@ -231,19 +231,19 @@ The player can control with arrow keys, WASD, or CandyCon gamepad controller.
 ```js
 update(dt) {
   if (this.input.isPressedLeft()) {
-    // move left
+    // move left while left is held
     this.state.player.x -= 0.2 * dt;
   }
   if (this.input.isPressedRight()) {
-    // move right
+    // move right while right is held
     this.state.player.x += 0.2 * dt;
   }
   if (this.input.isPressedUp()) {
-    // move up
+   // move up while up is held
     this.state.player.y += 0.2 * dt;
   }
   if (this.input.isPressedDown()) {
-    // move down
+    // move down while down is held
     this.state.player.y -= 0.2 * dt;
   }
 }
