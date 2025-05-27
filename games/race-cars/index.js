@@ -33,6 +33,8 @@ export default class MircoGame {
 
     // leave this - merges default state with your state
     this.state = { ...this.state, ...customState }
+
+    this.libs.sound.play(this.assets['engine.mp3'])
   }
 
   /** logic to update game state */
@@ -60,6 +62,8 @@ export default class MircoGame {
           state.cars[0].frames = state.crash
           state.cars[0].x = 200
           state.cars.length = 1
+          this.libs.sound.stop(this.assets['engine.mp3'])
+          this.libs.sound.play(this.assets['crash.mp3'])
           break
         }
       }
