@@ -75,6 +75,11 @@ export class UIManager {
     this.splashOverlay.style.display = 'none'
   }
 
+  showErrorPlayingGame(gameName = 'game'){
+    const error = this.createOverlay('error-splash-overlay', this.buildErrorInfoHTML(gameName))
+    setTimeout(()=> error.remove(), 3000)
+  }
+
   showGameInfo(manifest, authorNameFallback = 'Someone') {
     this.showInstruction(manifest?.instruction || this.DEFAULT_INSTRUCTION)
 
@@ -187,6 +192,11 @@ export class UIManager {
     this.gameTimer = null
     this.timerProgress.style.transition = 'none'
     this.timerProgress.style.width = '100%'
+  }
+
+  buildErrorInfoHTML(gameName){
+    return `<div class="error-splash-content"><h2>Oh no there was an error playing ${gameName}! <br>
+    onto the next </h2></div>`
   }
 
   buildAuthorInfoHTML(manifest) {
