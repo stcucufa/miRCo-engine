@@ -1,0 +1,14 @@
+{
+  "name": "race-cars",
+  "assets": [
+    "gray1.png",
+    "gray2.png",
+    "red1.png",
+    "red2.png",
+    "crash1.png",
+    "crash2.png",
+    "crash.mp3",
+    "engine.mp3"
+  ],
+  "instruction": "Race! ↑↓"
+}
