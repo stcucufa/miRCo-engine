@@ -57,7 +57,7 @@ export class GameLoader {
           assets,
         })
       } catch (err) {
-        console.error(`Failed to load ${nextManifest.name}:`, err)
+        console.error(`Failed to load ${nextManifest.name || 'as no manifest name has been provided'}:`, err)
       }
     }
   }

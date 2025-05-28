@@ -88,7 +88,7 @@ canvas {
   height: var(--game-height);
 }
 
-.start-splash-overlay {
+.start-splash-overlay, .error-splash-overlay {
   font-family: var(--font-family);
   position: absolute;
   top: 0;
@@ -103,7 +103,12 @@ canvas {
   z-index: 9999;
 }
 
-.splash-content {
+ .error-splash-overlay {
+  background: #ff7f7f;
+  color: white;
+ }
+
+.splash-content, .error-splash-content {
   text-align: center;
 }
 

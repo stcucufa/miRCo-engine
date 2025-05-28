@@ -120,7 +120,9 @@ export class MircoEngine {
   }
 
   async playNext() {
+
     let next = this.gameLoader.getNextGame()
+      
     if (!next) {
       console.error('Game buffer empty! Refilling...')
       await this.gameLoader.refillBuffer()
@@ -130,6 +132,7 @@ export class MircoEngine {
         return
       }
     }
+    try  {
 
     const { p5, images } = await this.bootstrapP5(next.manifest)
 
@@ -152,6 +155,11 @@ export class MircoEngine {
     this.ui.gameTimer = setTimeout(() => {
       this.endGame(true) // todo: revist win by default
     }, GAME_DURATION)
+  } catch(err) {
+    console.error(`oh no there was a problem trying to play ${next.manifest?.name || 'un-named game'} \n failed with: \n ${err}`)
+    this.ui.showErrorPlayingGame(next.manifest?.name || 'game')
+    setTimeout(() => this.endGame(true), 3000)
+  }
   }
 
   startGameLoop() {
